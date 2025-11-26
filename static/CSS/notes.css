@@ -1,0 +1,29 @@
+/* notes.css - helper styles for note elements */
+.note-container {
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+/* Use the supplied "note musique.png" as a decorative background for .note
+   The file name contains a space, so the URL uses percent-encoding. */
+.note {
+  background-image: url('/static/img/note%20musique.png');
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 40px 40px;
+  padding-left: 52px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.note-icon {
+  width:40px;
+  height:40px;
+  display:inline-block;
+  background-image: url('/static/img/note%20musique.png');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+}

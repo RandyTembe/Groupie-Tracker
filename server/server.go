@@ -1,13 +1,10 @@
-
 package server
 
 import (
 	"encoding/json"
-	"io"
 	"html/template"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -26,7 +23,6 @@ type Artist struct {
 	Locations    string   `json:"locations"`
 	ConcertDates string   `json:"concertDates"`
 	Relations    string   `json:"relations"`
-	Musique      string   `json:"musique"`
 }
 
 type Server struct {
@@ -67,27 +63,6 @@ func corsMiddleware(next http.Handler) http.Handler {
 
 func init() {
 	// Seed sample data si vide
-	// Try to load artists from api/artists.json so API data matches the homepage
-	dataPath := filepath.Join(".", "api", "artists.json")
-	if b, err := os.ReadFile(dataPath); err == nil {
-		var artists []Artist
-		if err := json.Unmarshal(b, &artists); err == nil && len(artists) > 0 {
-			artistsStore.Lock()
-			artistsStore.items = artists
-			// compute next id
-			maxID := 0
-			for _, a := range artists {
-				if a.ID > maxID {
-					maxID = a.ID
-				}
-			}
-			artistsStore.next = maxID + 1
-			artistsStore.Unlock()
-			return
-		}
-	}
-
-	// Fallback: seed sample data if loading failed or file missing
 	if len(artistsStore.items) == 0 {
 		artistsStore.items = []Artist{
 			{ID: 1, Image: "", Name: "Queen", Members: []string{"Freddie Mercury", "Brian May", "John Deacon", "Roger Taylor"}, CreationDate: 1970, FirstAlbum: "Queen", Locations: "London, UK", ConcertDates: "1973-07-13", Relations: "none"},
@@ -100,15 +75,10 @@ func init() {
 func NewServer(addr string) *Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", homeHandler)
-	mux.HandleFunc("/groupes", groupesHandler)
-	mux.HandleFunc("/historique", historiqueHandler)
-	// Removed artist detail routes; we keep only modal on listing page
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(".", "static")))))
 	mux.HandleFunc("/api", apiInfoHandler)
 	mux.HandleFunc("/api/artists", artistsCollectionHandler)
 	mux.HandleFunc("/api/artists/", artistsItemHandler)
-	mux.HandleFunc("/api/i18n", i18nHandler)
-	mux.HandleFunc("/api/proxy", proxyHandler)
 
 	srv := &http.Server{
 		Addr:         addr,
@@ -125,16 +95,6 @@ func (s *Server) Start() error {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
-	// Servir la page d'accueil
-	tmplPath := filepath.Join("templates", "home.html")
-	http.ServeFile(w, r, tmplPath)
-}
-
-func groupesHandler(w http.ResponseWriter, r *http.Request) {
 	data, err := os.ReadFile(filepath.Join(".", "api", "artists.json"))
 	if err != nil {
 		http.Error(w, "Impossible de lire api/artists.json", http.StatusInternalServerError)
@@ -153,11 +113,6 @@ func groupesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = tmpl.Execute(w, artists)
-}
-
-func historiqueHandler(w http.ResponseWriter, r *http.Request) {
-	tmplPath := filepath.Join("templates", "historique.html")
-	http.ServeFile(w, r, tmplPath)
 }
 
 func artistsCollectionHandler(w http.ResponseWriter, r *http.Request) {
@@ -250,46 +205,7 @@ func apiInfoHandler(w http.ResponseWriter, r *http.Request) {
 	info := map[string]string{
 		"base":    "/api",
 		"artists": "/api/artists",
-		"proxy":   "/api/proxy?url=...",
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	_ = json.NewEncoder(w).Encode(info)
-}
-
-func i18nHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	_ = json.NewEncoder(w).Encode(map[string]interface{}{
-		"lang":         "en",
-		"translations": map[string]string{},
-	})
-}
-
-// Artist detail page removed – kept via modal on listing
-
-// proxyHandler sécurise l'accès aux endpoints externes nécessaires (dates/locations)
-func proxyHandler(w http.ResponseWriter, r *http.Request) {
-	raw := r.URL.Query().Get("url")
-	if raw == "" {
-		writeJSONError(w, http.StatusBadRequest, "missing url")
-		return
-	}
-	u, err := url.Parse(raw)
-	if err != nil {
-		writeJSONError(w, http.StatusBadRequest, "invalid url")
-		return
-	}
-	// Autoriser seulement l'API groupietrackers
-	if u.Scheme != "https" || u.Host != "groupietrackers.herokuapp.com" || !strings.HasPrefix(u.Path, "/api/") {
-		writeJSONError(w, http.StatusForbidden, "forbidden target")
-		return
-	}
-	resp, err := http.Get(u.String())
-	if err != nil {
-		writeJSONError(w, http.StatusBadGateway, "upstream error")
-		return
-	}
-	defer resp.Body.Close()
-	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
-	w.WriteHeader(resp.StatusCode)
-	_, _ = io.Copy(w, resp.Body)
 }
