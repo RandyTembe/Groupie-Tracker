@@ -1,0 +1,25 @@
+/* image.css - site background using the provided music note image */
+body {
+  background-image: url('/static/img/images.png');
+  background-repeat: no-repeat no-repeat no-repeat no-repeat;
+  background-position: center center center center;
+    /* Make the background image smaller so it appears 'dezoomed'.
+      Adjust the percentage below to change zoom level (e.g. 40%, 60%). */
+    background-size: 100% auto;
+    background-position: center top;
+  min-height: 100vh;
+}
+
+/* dimming overlay to improve text readability */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 0;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+}
