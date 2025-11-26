@@ -26,7 +26,7 @@
         h1 {
             text-align: center;
             margin-bottom: 30px;
-            color: #fc8383;
+            color: #83a3fc;
         }
 
         .grid {
@@ -36,7 +36,7 @@
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.546);
+            background: rgba(180, 176, 176, 0.726);
             border-radius: 12px;
             padding: 15px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -45,7 +45,7 @@
 
         .card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 20px rgba(252, 249, 249, 0.555);
         }
 
         .card img {
@@ -59,18 +59,18 @@
             font-size: 1.2rem;
             font-weight: bold;
             margin: 10px 0 5px;
-            color: #22222200;
+            color: #000000e0;
         }
 
         .info {
             font-size: 0.95rem;
-            color: #555;
+            color: #050505;
         }
 
         .members {
             margin-top: 8px;
             font-size: 0.9rem;
-            color: #666;
+            color: #0d0d0d;
         }
     </style>
 </head>
@@ -82,19 +82,12 @@
     <div class="cards-area">
     <div class="grid">
     {{range .}}
-    <div class="card">
-        <img src="{{.Image}}" alt="{{.Name}}">
-        <div class="name">{{.Name}}</div>
-        <div class="info">Créé en {{.CreationDate}}</div>
-        <div class="info">Premier album : {{.FirstAlbum}}</div>
-
-        <div class="members">
-            <strong>Membres :</strong>
-            <ul>
-                {{range .Members}}
-                <li>{{.}}</li>
-                {{end}}
-            </ul>
+    <div class="note-card" data-id="{{.ID}}" role="button" tabindex="0" aria-pressed="false">
+        <div class="note-card-inner">
+            <div class="diamond" aria-hidden="true">
+                <div class="diamond-inner" style="background-image:url('{{.Image}}')"></div>
+            </div>
+            <div class="note-title">{{.Name}}</div>
         </div>
     </div>
     {{end}}
@@ -102,5 +95,16 @@
     </div>
 </div>
 
-</body>
-</html>
+    <!-- Modal backdrop (hidden until opened) -->
+    <div id="detailBackdrop" class="modal-backdrop" role="dialog" aria-hidden="true">
+        <div class="modal" role="document">
+            <button id="detailClose" class="close-btn">✕</button>
+            <h2 id="detailTitle">Détails</h2>
+            <div id="detailBody"></div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+
+    </body>
+    </html>

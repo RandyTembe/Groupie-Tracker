@@ -1,29 +1,91 @@
 /* notes.css - helper styles for note elements */
-.note-container {
-  display:flex;
-  gap:12px;
-  align-items:center;
-}
-
-/* Use the supplied "note musique.png" as a decorative background for .note
-   The file name contains a space, so the URL uses percent-encoding. */
-.note {
-  background-image: url('/static/img/note%20musique.png');
-  background-repeat: no-repeat;
-  background-position: left center;
-  background-size: 40px 40px;
-  padding-left: 52px;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-}
-
 .note-icon {
   width:40px;
   height:40px;
   display:inline-block;
-  background-image: url('/static/img/note%20musique.png');
   background-repeat: no-repeat;
   background-position: center center;
   background-size: contain;
 }
+
+/* CSS-only music-note shaped card (no image) */
+.note-card {
+  cursor: pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:220px;
+  height:220px;
+  position:relative;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  transition: transform .18s ease, box-shadow .18s ease;
+  overflow: visible;
+}
+.note-card:focus,
+.note-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 36px rgba(0,0,0,0.18);
+}
+
+/* Diamond (losange) showing the group's image */
+.diamond {
+  width: 140px;
+  height: 140px;
+  transform: rotate(45deg);
+  overflow: hidden;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+.diamond-inner {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center center;
+  transform: rotate(-45deg); /* keep image upright inside rotated container */
+  transform-origin: center center;
+}
+
+/* stem removed (cards are pure diamonds with group images) */
+
+.note-card-inner {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  text-align:center;
+  padding:12px;
+  width:100%;
+  height:100%;
+}
+.note-title {
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  font-weight:700;
+  z-index:4;
+}
+
+/* Modal for details */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-backdrop.open { display:flex; }
+.modal {
+  background: #fff;
+  color:#111;
+  border-radius: 12px;
+  max-width: 640px;
+  width: calc(100% - 40px);
+  padding: 20px;
+  box-shadow: 0 18px 60px rgba(0,0,0,0.4);
+}
+.modal h2 { margin-top:0 }
+.modal .close-btn { float:right; cursor:pointer }
