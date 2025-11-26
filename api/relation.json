@@ -1363,6 +1363,40 @@
           "06-12-2019"
         ]
       }
+    },
+    {
+      "id": 53,
+      "datesLocations": {
+        "aberdeen-sa": [
+          "07-11-2019"
+        ],
+        "seattle-usa": [
+          "10-11-2019"
+        ],
+        "los_angeles-usa": [
+          "16-11-2019"
+        ],
+        "san_francisco-usa": [
+          "24-10-2019"
+        ]
+      }
+    },
+    {
+      "id": 54,
+      "datesLocations": {
+        "auckland-new_zealand": [
+          "12-10-2019"
+        ],
+        "wellington-new_zealand": [
+          "16-11-2019"
+        ],
+        "christchurch-new_zealand": [
+          "08-11-2019"
+        ],
+        "texas-usa": [
+          "19-10-2019"
+        ]
+      }
     }
   ]
 }
