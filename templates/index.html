@@ -72,9 +72,41 @@
             font-size: 0.9rem;
             color: #0d0d0d;
         }
+
+        /* Barre de recherche */
+.research-bar {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  width: 200px;
+  padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+  color: rgb(255, 255, 254);
+  background: rgba(51, 51, 51, 0.9);
+  border-radius: 6px;
+  border: 1px solid #555;
+  font-size: 14px;
+  cursor: text;
+}
+.research-bar button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font-size: 16px;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+.research-bar button:focus { outline: 2px solid rgba(255,255,255,0.12); border-radius:4px }
     </style>
 </head>
 <body>
+
+<div class="research-bar"><input id="search-bar" placeholder="Recherche..." style="flex:1;border:none;background:transparent;color:inherit;outline:none" /><button id="search-btn" type="button" aria-label="Rechercher">🔍</button></div>
 
 <div class="content">
     <h1>Groupie Tracker</h1>
@@ -82,7 +114,7 @@
     <div class="cards-area">
     <div class="grid">
     {{range .}}
-    <div class="note-card" data-id="{{.ID}}" role="button" tabindex="0" aria-pressed="false">
+    <div class="note-card" data-id="{{.ID}}" data-name="{{.Name}}" role="button" tabindex="0" aria-pressed="false">
         <div class="note-card-inner">
             <div class="diamond" aria-hidden="true">
                 <div class="diamond-inner" style="background-image:url('{{.Image}}')"></div>
@@ -103,6 +135,39 @@
             <div id="detailBody"></div>
         </div>
     </div>
+
+    <!-- Script de filtrage -->
+    <script>
+        const searchBar = document.getElementById('search-bar');
+        const cards = document.querySelectorAll('.note-card');
+
+                if (searchBar) {
+                    const researchBarContainer = document.querySelector('.research-bar');
+                    const searchBtn = document.getElementById('search-btn');
+                    if (researchBarContainer) {
+                        researchBarContainer.addEventListener('click', () => searchBar.focus());
+                        researchBarContainer.style.cursor = 'text';
+                    }
+                    function performSearch(query) {
+                        const q = (query || '').toLowerCase();
+                        cards.forEach(card => {
+                            const name = (card.dataset.name || '').toLowerCase();
+                            card.style.display = name.includes(q) ? '' : 'none';
+                        });
+                    }
+
+                    if (searchBtn) {
+                        searchBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            searchBar.focus();
+                            performSearch(searchBar.value);
+                        });
+                    }
+                    searchBar.addEventListener('input', function() {
+                        performSearch(this.value);
+                    });
+                }
+    </script>
 
     <script src="/static/app.js"></script>
 
