@@ -63,6 +63,27 @@ func corsMiddleware(next http.Handler) http.Handler {
 
 func init() {
 	// Seed sample data si vide
+	// Try to load artists from api/artists.json so API data matches the homepage
+	dataPath := filepath.Join(".", "api", "artists.json")
+	if b, err := os.ReadFile(dataPath); err == nil {
+		var artists []Artist
+		if err := json.Unmarshal(b, &artists); err == nil && len(artists) > 0 {
+			artistsStore.Lock()
+			artistsStore.items = artists
+			// compute next id
+			maxID := 0
+			for _, a := range artists {
+				if a.ID > maxID {
+					maxID = a.ID
+				}
+			}
+			artistsStore.next = maxID + 1
+			artistsStore.Unlock()
+			return
+		}
+	}
+
+	// Fallback: seed sample data if loading failed or file missing
 	if len(artistsStore.items) == 0 {
 		artistsStore.items = []Artist{
 			{ID: 1, Image: "", Name: "Queen", Members: []string{"Freddie Mercury", "Brian May", "John Deacon", "Roger Taylor"}, CreationDate: 1970, FirstAlbum: "Queen", Locations: "London, UK", ConcertDates: "1973-07-13", Relations: "none"},
