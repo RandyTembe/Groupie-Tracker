@@ -1397,6 +1397,37 @@
           "19-10-2019"
         ]
       }
+    },
+    {
+      "id": 55,
+      "datesLocations": {
+        "california-usa": [
+          "12-10-2019"
+        ],
+        "illinois-usa": [
+          "14-10-2019"
+        ],
+        "new_york-usa": [
+          "09-10-2019"
+        ]
+      }
+    },
+    {
+      "id": 56,
+      "datesLocations": {
+        "los_angeles-usa": [
+          "1-10-2017"
+        ],
+        "copenhagen-denmark": [
+          "05-10-2017"
+        ],
+        "frankfurt-germany": [
+          "15-10-2017"
+        ],
+        "stockholm-sweden": [
+          "20-10-2017"
+        ]
+      }   
     }
   ]
 }

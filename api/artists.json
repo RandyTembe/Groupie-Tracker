@@ -841,5 +841,34 @@
   "locations": "https://groupietrackers.herokuapp.com/api/locations/54",
   "concertDates": "https://groupietrackers.herokuapp.com/api/dates/54",
   "relations": "https://groupietrackers.herokuapp.com/api/relation/54"
- }
+ },  
+ {
+    "id": 55,
+    "image": "https://www.bing.com/th/id/OIP.EHqVF5pHTemBGpOqblHxNgHaF7?w=234&h=211&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2",
+    "name": "Skillet",
+    "members": [  
+      "John Cooper",
+      "Korey Cooper",
+      "Jen Ledger",
+      "Seth Morrison"
+    ],
+    "creationDate": 1996,
+    "firstAlbum": "29-10-1996",
+    "locations": "https://groupietrackers.herokuapp.com/api/locations/55",
+    "concertDates": "https://groupietrackers.herokuapp.com/api/dates/55",
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/55"
+  },
+  {
+    "id": 56,
+    "image": "https://th.bing.com/th/id/OIP.hIBTTQYyM62dGKLKRwNEVgHaE8?w=279&h=186&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+    "name": "Avicii",
+    "members": [
+      "Tim Bergling"
+    ],
+    "creationDate": 2007,
+    "firstAlbum": "16-09-2013",
+    "locations": "https://groupietrackers.herokuapp.com/api/locations/56",
+    "concertDates": "https://groupietrackers.herokuapp.com/api/dates/56",
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/56"
+  }
 ]

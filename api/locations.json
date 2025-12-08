@@ -647,6 +647,46 @@
         "milan-italy"
       ],
       "dates": "https://groupietrackers.herokuapp.com/api/dates/52"
+    },
+    {
+      "id": 53,
+      "locations": [
+        "aberdeen-usa",
+        "seattle-usa",
+        "los_angeles-usa",
+        "san_francisco-usa"
+      ],
+      "dates": "https://groupietrackers.herokuapp.com/api/dates/53"
+    },
+    {
+      "id": 54,
+      "locations": [
+        "auckland-new_zealand",
+        "wellington-new_zealand",
+        "christchurch-new_zealand",
+        "brisbane-australia"
+      ],
+      "dates": "https://groupietrackers.herokuapp.com/api/dates/54"
+    },
+    {
+      "id": 55,
+      "locations": [
+        "san_jose-costa_rica",
+        "mexico_city-mexico",
+        "guadalajara-mexico",
+        "monterrey-mexico"
+      ],
+      "dates": "https://groupietrackers.herokuapp.com/api/dates/55"
+    },
+    {
+      "id": 56,
+      "locations": [
+        "los_angeles-usa",
+        "paris-france",
+        "oslo-norway",
+        "stockholm-sweden"
+      ],
+      "dates": "https://groupietrackers.herokuapp.com/api/dates/56"
     }
   ]
 }

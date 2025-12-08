@@ -3,18 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Groupie Tracker</title>
+    <link rel="stylesheet" href="/static/CSS/image.css">
+    <link rel="stylesheet" href="/static/CSS/notes.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            margin: 0;
+        /* Main content container sits above the overlay */
+        .content {
+            position: relative;
+            z-index: 1;
             padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Slight translucent backdrop for cards area (optional) */
+        .cards-area {
+            background: rgba(255, 255, 255, 0.002);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
         }
 
         h1 {
             text-align: center;
             margin-bottom: 30px;
-            color: #333;
+            color: #83a3fc;
         }
 
         .grid {
@@ -24,7 +36,7 @@
         }
 
         .card {
-            background: white;
+            background: rgba(180, 176, 176, 0.726);
             border-radius: 12px;
             padding: 15px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -33,7 +45,7 @@
 
         .card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 20px rgba(252, 249, 249, 0.555);
         }
 
         .card img {
@@ -47,44 +59,117 @@
             font-size: 1.2rem;
             font-weight: bold;
             margin: 10px 0 5px;
-            color: #222;
+            color: #000000e0;
         }
 
         .info {
             font-size: 0.95rem;
-            color: #555;
+            color: #050505;
         }
 
         .members {
             margin-top: 8px;
             font-size: 0.9rem;
-            color: #666;
+            color: #0d0d0d;
         }
+
+        /* Barre de recherche */
+.research-bar {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  width: 200px;
+  padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+  color: rgb(255, 255, 254);
+  background: rgba(51, 51, 51, 0.9);
+  border-radius: 6px;
+  border: 1px solid #555;
+  font-size: 14px;
+  cursor: text;
+}
+.research-bar button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font-size: 16px;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+.research-bar button:focus { outline: 2px solid rgba(255,255,255,0.12); border-radius:4px }
     </style>
 </head>
 <body>
 
-<h1>Groupie Tracker</h1>
+<div class="research-bar"><input id="search-bar" placeholder="Recherche..." style="flex:1;border:none;background:transparent;color:inherit;outline:none" /><button id="search-btn" type="button" aria-label="Rechercher">🔍</button></div>
 
-<div class="grid">
+<div class="content">
+    <h1>Groupie Tracker</h1>
+
+    <div class="cards-area">
+    <div class="grid">
     {{range .}}
-    <div class="card">
-        <img src="{{.Image}}" alt="{{.Name}}">
-        <div class="name">{{.Name}}</div>
-        <div class="info">Créé en {{.CreationDate}}</div>
-        <div class="info">Premier album : {{.FirstAlbum}}</div>
-
-        <div class="members">
-            <strong>Membres :</strong>
-            <ul>
-                {{range .Members}}
-                <li>{{.}}</li>
-                {{end}}
-            </ul>
+    <div class="note-card" data-id="{{.ID}}" data-name="{{.Name}}" role="button" tabindex="0" aria-pressed="false">
+        <div class="note-card-inner">
+            <div class="diamond" aria-hidden="true">
+                <div class="diamond-inner" style="background-image:url('{{.Image}}')"></div>
+            </div>
+            <div class="note-title">{{.Name}}</div>
         </div>
     </div>
     {{end}}
-</div>
+    </div>
+    </div>
+</div>  
 
-</body>
-</html>
+    <!-- Modal backdrop (hidden until opened) -->
+    <div id="detailBackdrop" class="modal-backdrop" role="dialog" aria-hidden="true">
+        <div class="modal" role="document">
+            <button id="detailClose" class="close-btn">✕</button>
+            <h2 id="detailTitle">Détails</h2>
+            <div id="detailBody"></div>
+        </div>
+    </div>
+
+    <!-- Script de filtrage -->
+    <script>
+        const searchBar = document.getElementById('search-bar');
+        const cards = document.querySelectorAll('.note-card');
+
+                if (searchBar) {
+                    const researchBarContainer = document.querySelector('.research-bar');
+                    const searchBtn = document.getElementById('search-btn');
+                    if (researchBarContainer) {
+                        researchBarContainer.addEventListener('click', () => searchBar.focus());
+                        researchBarContainer.style.cursor = 'text';
+                    }
+                    function performSearch(query) {
+                        const q = (query || '').toLowerCase();
+                        cards.forEach(card => {
+                            const name = (card.dataset.name || '').toLowerCase();
+                            card.style.display = name.includes(q) ? '' : 'none';
+                        });
+                    }
+
+                    if (searchBtn) {
+                        searchBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            searchBar.focus();
+                            performSearch(searchBar.value);
+                        });
+                    }
+                    searchBar.addEventListener('input', function() {
+                        performSearch(this.value);
+                    });
+                }
+    </script>
+
+    <script src="/static/app.js"></script>
+
+    </body>
+    </html>
