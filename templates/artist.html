@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title data-i18n="details">Détails du groupe</title>
+  <link rel="stylesheet" href="/static/CSS/notes.css">
+  <link rel="stylesheet" href="/static/CSS/image.css">
+  <style>
+    .artist-container { max-width:900px; margin:28px auto; padding:20px; color:#fff }
+    .artist-header { display:flex; align-items:center; gap:16px; margin-bottom:16px }
+    .artist-image { width:140px; height:140px; background-size:cover; background-position:center; border-radius:8px }
+    .artist-name { font-size:1.8rem; font-weight:700 }
+    .raw-json-pre { white-space:pre-wrap; max-height:640px; overflow:auto; background:#f7f7f7; color:#111; border-radius:6px; padding:12px; font-family:monospace }
+    /* bouton retour stylisé comme contrôle fixe et accessible */
+    .back-link {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 1100;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgb(255, 255, 255); 
+      color: #111; /* couleur du texte */
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid rgb(51, 92, 227);
+      box-shadow: 0 6px 18px rgb(48, 106, 220); /* effet ombre du bouton retour */
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .back-link:focus {
+      outline: 3px solid rgba(80, 12, 237, 0.349);
+      outline-offset: 2px;
+    }
+    .back-link:hover { transform: translateY(-1px); }
+  </style>
+</head>
+<body>
+  <div class="artist-container">
+    <button id="backBtn" class="back-link" type="button" data-i18n="back_button">← Retour</button>
+    <div id="artistRoot">
+      <div class="artist-header">
+        <div id="artistImage" class="artist-image" aria-hidden="true"></div>
+        <div>
+          <div id="artistName" class="artist-name" data-i18n="loading">Chargement…</div>
+          <div id="artistMeta" style="margin-top:8px;color:#ddd"></div> 
+        </div>
+      </div>
+      <h3>Infos :</h3>
+      <pre id="rawJsonPre" class="raw-json-pre" data-i18n="loading">Chargement…</pre>
+    </div>
+  </div>
+
+  <script src="/static/i18n.js"></script>
+  <script>
+    (function(){
+      function q(sel){return document.querySelector(sel)}
+      // comportement du bouton retour: essayer history.back(), sinon page d'accueil
+      const _back = function() {
+        if (history.length > 1) history.back(); else window.location.href = '/';
+      };
+      const btn = q('#backBtn'); if (btn) btn.addEventListener('click', _back);
+      function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+      // extraire l'ID du chemin /artists/:id
+      const path = window.location.pathname || '';
+      const id = path.replace(/^\/artists\/?/, '') || new URLSearchParams(window.location.search).get('id');
+      if (!id) {
+        q('#artistName').textContent = 'ID manquant';
+        q('#rawJsonPre').textContent = 'Aucun ID fourni';
+        return;
+      }
+      fetch('/api/artists/' + encodeURIComponent(id))
+        .then(r=>r.ok ? r.json() : Promise.reject('not found'))
+        .then(data => {
+          q('#artistName').textContent = data.name || data.Name || '—';
+          q('#artistMeta').textContent = (data.creationDate ? 'Créé en ' + data.creationDate : '') + (data.firstAlbum ? (' • Premier album: ' + data.firstAlbum) : '');
+          if (data.image || data.Image) q('#artistImage').style.backgroundImage = 'url("' + (data.image||data.Image) + '")';
+          
+          // Construire un affichage beau plutôt que du JSON brut
+          let infoHtml = '<div style="padding:20px">';
+          
+          // Image si disponible
+          if (data.Image || data.image) {
+            infoHtml += '<div style="text-align:center;margin-bottom:20px"><img src="' + (data.Image || data.image) + '" alt="' + escapeHtml(data.Name || data.name || '') + '" style="max-width:200px;height:auto;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.2)"/></div>';
+          }
+          
+          // Infos principales en grille
+          infoHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px">';
+          
+          if (data.CreationDate || data.creationDate) {
+            infoHtml += '<div style="background:#f0f4f8;padding:15px;border-radius:8px;border-left:4px solid #667eea"><p style="font-size:12px;color:#666;margin-bottom:5px">ANNÉE DE CRÉATION</p><p style="font-size:20px;font-weight:bold;color:#333">' + escapeHtml(String(data.CreationDate || data.creationDate)) + '</p></div>';
+          }
+          
+          if (data.FirstAlbum || data.firstAlbum) {
+            infoHtml += '<div style="background:#f0f4f8;padding:15px;border-radius:8px;border-left:4px solid #667eea"><p style="font-size:12px;color:#666;margin-bottom:5px">PREMIER ALBUM</p><p style="font-size:16px;font-weight:bold;color:#333">' + escapeHtml(String(data.FirstAlbum || data.firstAlbum)) + '</p></div>';
+          }
+          
+          infoHtml += '</div>';
+          
+          // Section des membres
+          const members = data.Members || data.members || [];
+          if (members && members.length) {
+            infoHtml += '<div style="background:#f9fafb;padding:20px;border-radius:8px;border-top:3px solid #667eea"><p style="font-size:14px;font-weight:bold;color:#333;margin-bottom:15px">MEMBRES (' + members.length + ')</p><ul style="list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+            members.forEach(function(m) {
+              infoHtml += '<li style="padding:10px;background:#fff;border-radius:6px;border-left:3px solid #764ba2;font-size:14px;color:#333">' + escapeHtml(m) + '</li>';
+            });
+            infoHtml += '</ul></div>';
+          }
+          
+          infoHtml += '</div>';
+          q('#rawJsonPre').innerHTML = infoHtml;
+        })
+        .catch(err=>{
+          q('#artistName').textContent = window.i18n ? window.i18n.t('error') : 'Erreur';
+          q('#rawJsonPre').textContent = String(err);
+        });
+    })();
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.i18n && window.i18n.addLanguageSwitcher) {
+        window.i18n.addLanguageSwitcher();
+      }
+    });
+  </script>
+</body>
+</html>
