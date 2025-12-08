@@ -11,12 +11,35 @@
     .artist-image { width:140px; height:140px; background-size:cover; background-position:center; border-radius:8px }
     .artist-name { font-size:1.8rem; font-weight:700 }
     .raw-json-pre { white-space:pre-wrap; max-height:640px; overflow:auto; background:#f7f7f7; color:#111; border-radius:6px; padding:12px; font-family:monospace }
-    a.back-link { color:#83a3fc; text-decoration:none; margin-bottom:12px; display:inline-block }
+    /* back button styled as a fixed, accessible control */
+    .back-link {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 1100;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.92);
+      color: #111;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.12);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .back-link:focus {
+      outline: 3px solid rgba(131,163,252,0.35);
+      outline-offset: 2px;
+    }
+    .back-link:hover { transform: translateY(-1px); }
   </style>
 </head>
 <body>
   <div class="artist-container">
-    <a class="back-link" href="/">← Retour</a>
+    <button id="backBtn" class="back-link" type="button">← Retour</button>
     <div id="artistRoot">
       <div class="artist-header">
         <div id="artistImage" class="artist-image" aria-hidden="true"></div>
@@ -25,7 +48,7 @@
           <div id="artistMeta" style="margin-top:8px;color:#ddd"></div>
         </div>
       </div>
-      <h3>JSON brut</h3>
+      <h3>Infos :</h3>
       <pre id="rawJsonPre" class="raw-json-pre">Chargement…</pre>
     </div>
   </div>
@@ -33,6 +56,11 @@
   <script>
     (function(){
       function q(sel){return document.querySelector(sel)}
+      // back button behaviour: try history.back(), fallback to homepage
+      const _back = function() {
+        if (history.length > 1) history.back(); else window.location.href = '/';
+      };
+      const btn = q('#backBtn'); if (btn) btn.addEventListener('click', _back);
       function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
       // extract id from path /artists/:id
       const path = window.location.pathname || '';
