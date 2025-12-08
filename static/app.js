@@ -1,5 +1,7 @@
 // app.js - simple handler to open a modal with artist details
 document.addEventListener('DOMContentLoaded', function () {
+  // small helper used by multiple modal renderers
+  function escapeHtml(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function openModal(data) {
     const backdrop = document.getElementById('detailBackdrop');
     const title = document.getElementById('detailTitle');
@@ -19,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return `<li>${escapeHtml(p)}</li>`;
       }).join('')}</ul>`;
     }
-    function escapeHtml(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    
 
     // helper to read either lowercase JSON keys or capitalized (robust)
     function getField(key) {
@@ -37,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <div style="display:flex;gap:8px;align-items:center;margin:8px 0">
     
         </div>
-        <pre id="rawJsonPre" style="white-space:pre-wrap;max-height:240px;overflow:auto;background:#f7f7f7;border-radius:6px;padding:8px">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+        <pre id="rawJsonPre" style="white-space:pre-wrap;max-height:240px;overflow:auto;background:#fff;border-radius:6px;padding:8px">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
       </details>
     `);
 
@@ -134,19 +136,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     body.innerHTML = parts.join('\n');
-
-    // wire copy button
-    setTimeout(() => {
-      const copyBtn = document.getElementById('copyJsonBtn');
-      const rawPre = document.getElementById('rawJsonPre');
-      if (copyBtn && rawPre) {
-        copyBtn.addEventListener('click', () => {
-          navigator.clipboard.writeText(rawPre.textContent || '')
-            .then(() => { copyBtn.textContent = 'Copié ✓'; setTimeout(() => { copyBtn.textContent = 'Copier JSON'; }, 1400); })
-            .catch(() => { alert('Impossible de copier'); });
-        });
-      }
-    }, 10);
     backdrop.classList.add('open');
 
     // After rendering, replace URL placeholders with fetched content when possible
@@ -200,18 +189,83 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('detailBackdrop').classList.remove('open');
   }
 
+  // open modal showing raw JSON and copy button
+  function openJsonModal(data) {
+    const backdrop = document.getElementById('detailBackdrop');
+    const title = document.getElementById('detailTitle');
+    const body = document.getElementById('detailBody');
+    title.textContent = data.Name || data.name || 'Détails';
+    
+    // Build beautiful structured info with members
+    let infoHtml = '<div style="padding:20px">';
+    
+    // Image if available
+    if (data.Image) {
+      infoHtml += `<div style="text-align:center;margin-bottom:20px"><img src="${data.Image}" alt="${escapeHtml(data.Name || '')}" style="max-width:200px;height:auto;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.2)"/></div>`;
+    }
+    
+    // Main info in grid
+    infoHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px">';
+    
+    if (data.CreationDate) {
+      infoHtml += `<div style="background:#f0f4f8;padding:15px;border-radius:8px;border-left:4px solid #667eea">
+        <p style="font-size:12px;color:#666;margin-bottom:5px">ANNÉE DE CRÉATION</p>
+        <p style="font-size:20px;font-weight:bold;color:#333">${escapeHtml(String(data.CreationDate))}</p>
+      </div>`;
+    }
+    
+    if (data.FirstAlbum) {
+      infoHtml += `<div style="background:#f0f4f8;padding:15px;border-radius:8px;border-left:4px solid #667eea">
+        <p style="font-size:12px;color:#666;margin-bottom:5px">PREMIER ALBUM</p>
+        <p style="font-size:16px;font-weight:bold;color:#333">${escapeHtml(String(data.FirstAlbum))}</p>
+      </div>`;
+    }
+    
+    infoHtml += '</div>';
+    
+    // Members section
+    if (data.Members && data.Members.length) {
+      infoHtml += `<div style="background:#f9fafb;padding:20px;border-radius:8px;border-top:3px solid #667eea">
+        <p style="font-size:14px;font-weight:bold;color:#333;margin-bottom:15px">MEMBRES (${data.Members.length})</p>
+        <ul style="list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px">`;
+      
+      data.Members.forEach(m => {
+        infoHtml += `<li style="padding:10px;background:#fff;border-radius:6px;border-left:3px solid #764ba2;font-size:14px;color:#333">${escapeHtml(m)}</li>`;
+      });
+      
+      infoHtml += `</ul>
+      </div>`;
+    }
+    
+    infoHtml += '</div>';
+    body.innerHTML = infoHtml;
+    backdrop.classList.add('open');
+  }
+
   document.body.addEventListener('click', function (ev) {
+    // Ignore clicks that originated on the diamond; they are handled separately
+    if (ev.target.closest('.diamond')) return;
     const card = ev.target.closest('.note-card');
     if (!card) return;
     const id = card.getAttribute('data-id');
     if (!id) return;
-    fetch(`/api/artists/${id}`)
-      .then(r => r.json())
-      .then(data => {
-        // show JSON inside the card (toggle)
-        renderJsonInCard(card, data);
-      })
-      .catch(err => { console.error(err); alert('Erreur lors du chargement des détails'); });
+    // navigate to the artist detail page
+    window.location.href = `/artists/${encodeURIComponent(id)}`;
+  });
+
+  // Dedicated left-click handler for the icon (.diamond)
+  document.body.addEventListener('click', function (ev) {
+    const diamond = ev.target.closest('.diamond');
+    if (!diamond) return;
+    // only respond to primary (left) mouse button
+    if (ev.button !== 0) return;
+    ev.stopPropagation(); // prevent the card-level handler from also firing
+    const card = diamond.closest('.note-card');
+    if (!card) return;
+    const id = card.getAttribute('data-id');
+    if (!id) return;
+    // navigate to the artist detail page when clicking the icon
+    window.location.href = `/artists/${encodeURIComponent(id)}`;
   });
 
   // keyboard activation (Enter / Space) when a .note-card is focused
@@ -223,12 +277,8 @@ document.addEventListener('DOMContentLoaded', function () {
       e.preventDefault();
       const id = card.getAttribute('data-id');
       if (!id) return;
-      fetch(`/api/artists/${id}`)
-        .then(r => r.json())
-        .then(data => {
-          renderJsonInCard(card, data);
-        })
-        .catch(err => { console.error(err); alert('Erreur lors du chargement des détails'); });
+      // open artist page on keyboard activation as well
+      window.location.href = `/artists/${encodeURIComponent(id)}`;
     }
   });
 
@@ -246,16 +296,7 @@ document.addEventListener('DOMContentLoaded', function () {
     pre.textContent = JSON.stringify(data, null, 2);
     pre.style.whiteSpace = 'pre-wrap';
     container.appendChild(pre);
-    const copyBtn = document.createElement('button');
-    copyBtn.type = 'button';
-    copyBtn.textContent = 'Copier JSON';
-    copyBtn.style.marginTop = '6px';
-    copyBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(pre.textContent || '')
-        .then(() => { copyBtn.textContent = 'Copié ✓'; setTimeout(() => { copyBtn.textContent = 'Copier JSON'; }, 1200); })
-        .catch(() => alert('Impossible de copier'));
-    });
-    container.appendChild(copyBtn);
+    // no copy button: user requested removal
     // insert at the end of card inner
     const inner = card.querySelector('.note-card-inner') || card;
     inner.appendChild(container);

@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Groupie Tracker</title>
+    <title data-i18n="title">Groupie Tracker</title>
     <link rel="stylesheet" href="/static/CSS/image.css">
     <link rel="stylesheet" href="/static/CSS/notes.css">
     <style>
@@ -106,10 +106,10 @@
 </head>
 <body>
 
-<div class="research-bar"><input id="search-bar" placeholder="Recherche..." style="flex:1;border:none;background:transparent;color:inherit;outline:none" /><button id="search-btn" type="button" aria-label="Rechercher">🔍</button></div>
+<div class="research-bar"><input id="search-bar" placeholder="Recherche..." data-i18n="search_placeholder" style="flex:1;border:none;background:transparent;color:inherit;outline:none" /><button id="search-btn" type="button" aria-label="Rechercher" data-i18n-aria="search_button">🔍</button></div>
 
 <div class="content">
-    <h1>Groupie Tracker</h1>
+    <h1 data-i18n="title">Groupie Tracker</h1>
 
     <div class="cards-area">
     <div class="grid">
@@ -169,7 +169,17 @@
                 }
     </script>
 
+    <script src="/static/i18n.js"></script>
     <script src="/static/app.js"></script>
+
+    <script>
+        // Ajouter le sélecteur de langue après le chargement de i18n
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.i18n && window.i18n.addLanguageSwitcher) {
+                window.i18n.addLanguageSwitcher();
+            }
+        });
+    </script>
 
     </body>
     </html>
