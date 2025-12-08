@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Groupie Tracker</title>
+    <link rel="stylesheet" href="/static/CSS/image.css">
+    <link rel="stylesheet" href="/static/CSS/notes.css">
+    <style>
+        /* Main content container sits above the overlay */
+        .content {
+            position: relative;
+            z-index: 1;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Slight translucent backdrop for cards area (optional) */
+        .cards-area {
+            background: rgba(255, 255, 255, 0.002);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #83a3fc;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(180, 176, 176, 0.726);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(252, 249, 249, 0.555);
+        }
+
+        .card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 10px 0 5px;
+            color: #000000e0;
+        }
+
+        .info {
+            font-size: 0.95rem;
+            color: #050505;
+        }
+
+        .members {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #0d0d0d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="content">
+    <h1>Groupie Tracker</h1>
+
+    <div class="cards-area">
+    <div class="grid">
+    {{range .}}
+    <div class="note-card" data-id="{{.ID}}" role="button" tabindex="0" aria-pressed="false">
+        <div class="note-card-inner">
+            <div class="diamond" aria-hidden="true">
+                <div class="diamond-inner" style="background-image:url('{{.Image}}')"></div>
+            </div>
+            <div class="note-title">{{.Name}}</div>
+        </div>
+    </div>
+    {{end}}
+    </div>
+    </div>
+</div>
+
+    <!-- Modal backdrop (hidden until opened) -->
+    <div id="detailBackdrop" class="modal-backdrop" role="dialog" aria-hidden="true">
+        <div class="modal" role="document">
+            <button id="detailClose" class="close-btn">✕</button>
+            <h2 id="detailTitle">Détails</h2>
+            <div id="detailBody"></div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+
+    </body>
+    </html>
+    
