@@ -96,6 +96,7 @@ func init() {
 func NewServer(addr string) *Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", homeHandler)
+	mux.HandleFunc("/artists/", artistPageHandler)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(".", "static")))))
 	mux.HandleFunc("/api", apiInfoHandler)
 	mux.HandleFunc("/api/artists", artistsCollectionHandler)
@@ -229,4 +230,10 @@ func apiInfoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	_ = json.NewEncoder(w).Encode(info)
+}
+
+func artistPageHandler(w http.ResponseWriter, r *http.Request) {
+	// serve a simple artist detail page (the page will fetch the JSON via /api)
+	tmplPath := filepath.Join("templates", "artist.html")
+	http.ServeFile(w, r, tmplPath)
 }

@@ -33,7 +33,6 @@
 .diamond {
   width: 140px;
   height: 140px;
-  transform: rotate(45deg);
   overflow: hidden;
   display: inline-block;
   margin-bottom: 8px;
@@ -43,8 +42,9 @@
   height: 100%;
   background-size: cover;
   background-position: center center;
-  transform: rotate(-45deg); /* keep image upright inside rotated container */
-  transform-origin: center center;
+  /* Octagon shape using clip-path: 8 points forming an octagon */
+  -webkit-clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+  clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
 }
 
 /* stem removed (cards are pure diamonds with group images) */
