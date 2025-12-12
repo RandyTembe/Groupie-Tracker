@@ -16,7 +16,9 @@
     "firstAlbum": "14-12-1973",
     "locations": "https://groupietrackers.herokuapp.com/api/locations/1",
     "concertDates": "https://groupietrackers.herokuapp.com/api/dates/1",
-    "relations": "https://groupietrackers.herokuapp.com/api/relation/1"
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/1",
+    "musique": "https://soundcloud.com/queen-69312/killer-queen-remastered-2011?si=8ec5515ab1254d40a615f64c13187a83&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
+
   },
   {
     "id": 2,
@@ -36,7 +38,8 @@
     "firstAlbum": "05-06-2002",
     "locations": "https://groupietrackers.herokuapp.com/api/locations/2",
     "concertDates": "https://groupietrackers.herokuapp.com/api/dates/2",
-    "relations": "https://groupietrackers.herokuapp.com/api/relation/2"
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/2",
+    "musique" : "https://soundcloud.com/sojamusic/everything-changes-soja?si=eaf26b486f23466fbb02ec976a11c7a9&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
   },
   {
     "id": 3,
@@ -54,7 +57,8 @@
     "firstAlbum": "05-08-1967",
     "locations": "https://groupietrackers.herokuapp.com/api/locations/3",
     "concertDates": "https://groupietrackers.herokuapp.com/api/dates/3",
-    "relations": "https://groupietrackers.herokuapp.com/api/relation/3"
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/3",
+    "musique": "https://soundcloud.com/abominable-snowman-1/pink-floyd-shine-on-you-crazy-diamond?si=5d7198a473964d03ae35d84fe0bf1d4f&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
   },
   {
     "id": 4,
@@ -71,7 +75,8 @@
     "firstAlbum": "21-04-1979",
     "locations": "https://groupietrackers.herokuapp.com/api/locations/4",
     "concertDates": "https://groupietrackers.herokuapp.com/api/dates/4",
-    "relations": "https://groupietrackers.herokuapp.com/api/relation/4"
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/4",
+    "musique": "https://soundcloud.com/raptor01/scorpions-wind-of-change?si=80234cbe4f474d2ab822a37b02f8885b&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
   },
   {
     "id": 5,
@@ -84,7 +89,8 @@
     "firstAlbum": "07-09-2017",
     "locations": "https://groupietrackers.herokuapp.com/api/locations/5",
     "concertDates": "https://groupietrackers.herokuapp.com/api/dates/5",
-    "relations": "https://groupietrackers.herokuapp.com/api/relation/5"
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/5",
+    "musique": "https://soundcloud.com/jahseh-onfroy/moonlight?si=18ff2c2a413f4ba4a3ac155e59d39ec4&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
   },
   {
     "id": 6,
@@ -97,7 +103,8 @@
     "firstAlbum": "29-06-2013",
     "locations": "https://groupietrackers.herokuapp.com/api/locations/6",
     "concertDates": "https://groupietrackers.herokuapp.com/api/dates/6",
-    "relations": "https://groupietrackers.herokuapp.com/api/relation/6"
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/6",
+    "musique": "https://soundcloud.com/larryfisherman/self-care?si=8cf30bf5531d4459adf17a6f764bcd07&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
   },
   {
     "id": 7,
@@ -110,7 +117,8 @@
     "firstAlbum": "13-05-2011",
     "locations": "https://groupietrackers.herokuapp.com/api/locations/7",
     "concertDates": "https://groupietrackers.herokuapp.com/api/dates/7",
-    "relations": "https://groupietrackers.herokuapp.com/api/relation/7"
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/7",
+    "musique": "https://soundcloud.com/realjoynerlucas/whitenoise?si=20fc2b68ff46497f9b3f8dc0cb928c45&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
   },
   {
     "id": 8,
@@ -123,7 +131,8 @@
     "firstAlbum": "03-11-2012",
     "locations": "https://groupietrackers.herokuapp.com/api/locations/8",
     "concertDates": "https://groupietrackers.herokuapp.com/api/dates/8",
-    "relations": "https://groupietrackers.herokuapp.com/api/relation/8"
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/8",
+    "musique": "https://soundcloud.com/kendrick-lamar-music/luther?si=201e25f8a2fb46baae83347ca6902f53&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
   },
   {
     "id": 9,
@@ -139,7 +148,8 @@
     "firstAlbum": "11-05-1977",
     "locations": "https://groupietrackers.herokuapp.com/api/locations/9",
     "concertDates": "https://groupietrackers.herokuapp.com/api/dates/9",
-    "relations": "https://groupietrackers.herokuapp.com/api/relation/9"
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/9",
+    "musique": "https://soundcloud.com/miro1973/ac-dc-thunderstruck?si=63a048b18c5d41f982df8059f74d5988&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
   },
   {
     "id": 10,
@@ -156,7 +166,8 @@
     "firstAlbum": "03-07-1992",
     "locations": "https://groupietrackers.herokuapp.com/api/locations/10",
     "concertDates": "https://groupietrackers.herokuapp.com/api/dates/10",
-    "relations": "https://groupietrackers.herokuapp.com/api/relation/10"
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/10",
+    "musique": "https://soundcloud.com/andybertazzz/pearl-jam-black?si=fec35939a45a4198936f059ec23736d1&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
   },
   {
     "id": 11,
@@ -169,7 +180,8 @@
     "firstAlbum": "04-10-2008",
     "locations": "https://groupietrackers.herokuapp.com/api/locations/11",
     "concertDates": "https://groupietrackers.herokuapp.com/api/dates/11",
-    "relations": "https://groupietrackers.herokuapp.com/api/relation/11"
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/11",
+    "musique": "https://soundcloud.com/katyperry/hot-n-cold?si=6acdbb6e26e94225b444b45e0773aafe&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
   },
   {
     "id": 12,
@@ -182,7 +194,8 @@
     "firstAlbum": "10-09-2005",
     "locations": "https://groupietrackers.herokuapp.com/api/locations/12",
     "concertDates": "https://groupietrackers.herokuapp.com/api/dates/12",
-    "relations": "https://groupietrackers.herokuapp.com/api/relation/12"
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/12",
+    "musique": "https://soundcloud.com/rihanna/disturbia?si=0a94b1d0dcd646aaa66a91e608a0572b&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
   },
   {
     "id": 13,
@@ -199,7 +212,8 @@
     "firstAlbum": "14-10-1972",
     "locations": "https://groupietrackers.herokuapp.com/api/locations/13",
     "concertDates": "https://groupietrackers.herokuapp.com/api/dates/13",
-    "relations": "https://groupietrackers.herokuapp.com/api/relation/13"
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/13",
+    "musique": "https://soundcloud.com/genesis4/the-chamber-of-32-doors-2025?si=4a057c64e92c47d2858e2b82b39c755c&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
   },
   {
     "id": 14,
@@ -824,7 +838,8 @@
   "firstAlbum": "15-06-1989",
   "locations": "https://groupietrackers.herokuapp.com/api/locations/53",
   "concertDates": "https://groupietrackers.herokuapp.com/api/dates/53",
-  "relations": "https://groupietrackers.herokuapp.com/api/relation/53"
+  "relations": "https://groupietrackers.herokuapp.com/api/relation/53",
+  "musique": "https://soundcloud.com/nirvana/smells-like-teen-spirit-1?si=e43a1c679cf14dc49f422f19ee960084&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
  },
  {
   "id": 54,
@@ -840,7 +855,8 @@
   "firstAlbum": "04-03-2005",
   "locations": "https://groupietrackers.herokuapp.com/api/locations/54",
   "concertDates": "https://groupietrackers.herokuapp.com/api/dates/54",
-  "relations": "https://groupietrackers.herokuapp.com/api/relation/54"
+  "relations": "https://groupietrackers.herokuapp.com/api/relation/54",
+  "musique": "https://soundcloud.com/sabatonofficial/templars?in=sabatonofficial/sets/legends-813226535&si=bf25026907f7469797620e45bfd67419&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
  },  
  {
     "id": 55,
@@ -856,7 +872,8 @@
     "firstAlbum": "29-10-1996",
     "locations": "https://groupietrackers.herokuapp.com/api/locations/55",
     "concertDates": "https://groupietrackers.herokuapp.com/api/dates/55",
-    "relations": "https://groupietrackers.herokuapp.com/api/relation/55"
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/55",
+    "musique": "https://soundcloud.com/skilletofficial/feel-invincible?si=0541d4f19aa44162a3ed0289e019b7ed&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
   },
   {
     "id": 56,
@@ -869,6 +886,7 @@
     "firstAlbum": "16-09-2013",
     "locations": "https://groupietrackers.herokuapp.com/api/locations/56",
     "concertDates": "https://groupietrackers.herokuapp.com/api/dates/56",
-    "relations": "https://groupietrackers.herokuapp.com/api/relation/56"
+    "relations": "https://groupietrackers.herokuapp.com/api/relation/56",
+    "musique": "https://soundcloud.com/dj_radify/avcicii-wake-me-up?si=bf066edf7b6e45d09ffb2fd506d42964&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
   }
 ]

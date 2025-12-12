@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <div style="display:flex;gap:8px;align-items:center;margin:8px 0">
     
         </div>
-        <pre id="rawJsonPre" style="white-space:pre-wrap;max-height:240px;overflow:auto;background:#f7f7f7;border-radius:6px;padding:8px">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+        <pre id="rawJsonPre" style="white-space:pre-wrap;max-height:240px;overflow:auto;background:#fff;border-radius:6px;padding:8px">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
       </details>
     `);
 
@@ -194,9 +194,51 @@ document.addEventListener('DOMContentLoaded', function () {
     const backdrop = document.getElementById('detailBackdrop');
     const title = document.getElementById('detailTitle');
     const body = document.getElementById('detailBody');
-    title.textContent = data.Name || data.name || 'Détails (JSON)';
-    const preHtml = `<pre id="rawJsonPre" style="white-space:pre-wrap;max-height:480px;overflow:auto;background:#f7f7f7;border-radius:6px;padding:8px">${escapeHtml(JSON.stringify(data, null, 2))}</pre>`;
-    body.innerHTML = preHtml;
+    title.textContent = data.Name || data.name || 'Détails';
+    
+    // Build beautiful structured info with members
+    let infoHtml = '<div style="padding:20px">';
+    
+    // Image if available
+    if (data.Image) {
+      infoHtml += `<div style="text-align:center;margin-bottom:20px"><img src="${data.Image}" alt="${escapeHtml(data.Name || '')}" style="max-width:200px;height:auto;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.2)"/></div>`;
+    }
+    
+    // Main info in grid
+    infoHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px">';
+    
+    if (data.CreationDate) {
+      infoHtml += `<div style="background:#f0f4f8;padding:15px;border-radius:8px;border-left:4px solid #667eea">
+        <p style="font-size:12px;color:#666;margin-bottom:5px">ANNÉE DE CRÉATION</p>
+        <p style="font-size:20px;font-weight:bold;color:#333">${escapeHtml(String(data.CreationDate))}</p>
+      </div>`;
+    }
+    
+    if (data.FirstAlbum) {
+      infoHtml += `<div style="background:#f0f4f8;padding:15px;border-radius:8px;border-left:4px solid #667eea">
+        <p style="font-size:12px;color:#666;margin-bottom:5px">PREMIER ALBUM</p>
+        <p style="font-size:16px;font-weight:bold;color:#333">${escapeHtml(String(data.FirstAlbum))}</p>
+      </div>`;
+    }
+    
+    infoHtml += '</div>';
+    
+    // Members section
+    if (data.Members && data.Members.length) {
+      infoHtml += `<div style="background:#f9fafb;padding:20px;border-radius:8px;border-top:3px solid #667eea">
+        <p style="font-size:14px;font-weight:bold;color:#333;margin-bottom:15px">MEMBRES (${data.Members.length})</p>
+        <ul style="list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px">`;
+      
+      data.Members.forEach(m => {
+        infoHtml += `<li style="padding:10px;background:#fff;border-radius:6px;border-left:3px solid #764ba2;font-size:14px;color:#333">${escapeHtml(m)}</li>`;
+      });
+      
+      infoHtml += `</ul>
+      </div>`;
+    }
+    
+    infoHtml += '</div>';
+    body.innerHTML = infoHtml;
     backdrop.classList.add('open');
   }
 

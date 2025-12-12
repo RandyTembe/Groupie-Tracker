@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <title>Détails du groupe</title>
+  <title data-i18n="details">Détails du groupe</title>
   <link rel="stylesheet" href="/static/CSS/notes.css">
   <link rel="stylesheet" href="/static/CSS/image.css">
   <style>
@@ -11,18 +11,17 @@
     .artist-image { width:140px; height:140px; background-size:cover; background-position:center; border-radius:8px }
     .artist-name { font-size:1.8rem; font-weight:700 }
     .raw-json-pre { white-space:pre-wrap; max-height:640px; overflow:auto; background:#f7f7f7; color:#111; border-radius:6px; padding:12px; font-family:monospace }
-    /* back button styled as a fixed, accessible control */
     .back-link {
       position: fixed;
-      top: 12px;
-      left: 12px;
+      top: 20px;
+      left: 20px;
       z-index: 1100;
       display: inline-flex;
       align-items: center;
       gap: 8px;
       background: rgba(255,255,255,0.92);
       color: #111;
-      padding: 6px 10px;
+      padding: 8px 12px;
       border-radius: 8px;
       border: 1px solid rgba(0,0,0,0.12);
       box-shadow: 0 6px 18px rgba(0,0,0,0.25);
@@ -35,34 +34,128 @@
       outline-offset: 2px;
     }
     .back-link:hover { transform: translateY(-1px); }
+    .player-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.95);
+      padding: 10px 20px;
+      border-radius: 25px;
+      border: none;
+      cursor: pointer !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      min-width: 60px;
+      font-size: inherit;
+      font-family: inherit;
+      position: relative;
+    }
+    .player-btn::before {
+      content: '';
+      width: 0;
+      height: 0;
+      border-left: 10px solid #333;
+      border-top: 7px solid transparent;
+      border-bottom: 7px solid transparent;
+      display: inline-block;
+      pointer-events: none;
+    }
+    .player-btn::after {
+      content: '';
+      width: 70px;
+      height: 3px;
+      background: #ddd;
+      border-radius: 2px;
+      display: inline-block;
+      pointer-events: none;
+    }
+    .player-btn:hover {
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      transform: scale(1.05);
+    }
+    .player-btn:active {
+      transform: scale(0.98);
+    }
+    #audioPlayer {
+      display: none;
+    }
   </style>
 </head>
 <body>
   <div class="artist-container">
-    <button id="backBtn" class="back-link" type="button">← Retour</button>
+    <button id="backBtn" class="back-link" type="button" aria-label="Retour">← Retour</button>
     <div id="artistRoot">
       <div class="artist-header">
         <div id="artistImage" class="artist-image" aria-hidden="true"></div>
-        <div>
-          <div id="artistName" class="artist-name">Chargement…</div>
-          <div id="artistMeta" style="margin-top:8px;color:#ddd"></div>
+        <div style="flex:1">
+          <div id="artistName" class="artist-name" data-i18n="loading">Chargement…</div>
+          <div id="artistMeta" style="margin-top:8px;color:#ddd;margin-bottom:16px"></div>
+          <button id="playerBtn" type="button" aria-label="Lire la musique" class="player-btn"></button>
+          <audio id="audioPlayer"></audio>
         </div>
       </div>
       <h3>Infos :</h3>
-      <pre id="rawJsonPre" class="raw-json-pre">Chargement…</pre>
+      <pre id="rawJsonPre" class="raw-json-pre" data-i18n="loading">Chargement…</pre>
     </div>
   </div>
 
+  <script src="/static/i18n.js"></script>
   <script>
     (function(){
       function q(sel){return document.querySelector(sel)}
-      // back button behaviour: try history.back(), fallback to homepage
+      // comportement du bouton retour: essayer history.back(), sinon page d'accueil
       const _back = function() {
         if (history.length > 1) history.back(); else window.location.href = '/';
       };
       const btn = q('#backBtn'); if (btn) btn.addEventListener('click', _back);
+      
+      let musicUrl = null;
+      let isSoundCloud = false;
+      
+      // Attacher l'événement au bouton player dès maintenant
+      const playerBtn = q('#playerBtn');
+      const audioPlayer = q('#audioPlayer');
+      if (playerBtn) {
+        playerBtn.addEventListener('click', function(e) {
+          console.log('BOUTON CLIQUÉ!', musicUrl);
+          if (musicUrl) {
+            if (isSoundCloud) {
+              // Créer un modal avec le lecteur SoundCloud embed
+              const modal = document.createElement('div');
+              modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;';
+              modal.innerHTML = `
+                <div style="background:#fff;padding:20px;border-radius:12px;max-width:600px;width:90%;">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:15px;">
+                    <h3 style="margin:0;color:#333;">Lecteur Audio</h3>
+                    <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#666;">&times;</button>
+                  </div>
+                  <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" 
+                    src="https://w.soundcloud.com/player/?url=${encodeURIComponent(musicUrl)}&color=%23ff5500&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
+                </div>
+              `;
+              document.body.appendChild(modal);
+              modal.addEventListener('click', function(e) {
+                if (e.target === modal) modal.remove();
+              });
+            } else {
+              if (audioPlayer.paused) {
+                audioPlayer.play().catch(err => {
+                  console.error('Erreur:', err);
+                  window.open(musicUrl, '_blank');
+                });
+              } else {
+                audioPlayer.pause();
+              }
+            }
+          }
+        });
+        console.log('Event attaché au bouton player');
+      }
+      
       function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-      // extract id from path /artists/:id
+      // extraire l'ID du chemin /artists/:id
       const path = window.location.pathname || '';
       const id = path.replace(/^\/artists\/?/, '') || new URLSearchParams(window.location.search).get('id');
       if (!id) {
@@ -76,13 +169,65 @@
           q('#artistName').textContent = data.name || data.Name || '—';
           q('#artistMeta').textContent = (data.creationDate ? 'Créé en ' + data.creationDate : '') + (data.firstAlbum ? (' • Premier album: ' + data.firstAlbum) : '');
           if (data.image || data.Image) q('#artistImage').style.backgroundImage = 'url("' + (data.image||data.Image) + '")';
-          q('#rawJsonPre').innerHTML = escapeHtml(JSON.stringify(data, null, 2));
+          
+          // Configurer la musique
+          if (data.musique) {
+            musicUrl = data.musique;
+            isSoundCloud = musicUrl.includes('soundcloud.com');
+            if (audioPlayer && !isSoundCloud) {
+              audioPlayer.src = musicUrl;
+              audioPlayer.crossOrigin = 'anonymous';
+            }
+            console.log('Musique configurée:', musicUrl, 'SoundCloud:', isSoundCloud);
+          }
+          
+          // Construire un affichage beau plutôt que du JSON brut
+          let infoHtml = '<div style="padding:20px">';
+          
+          // Image si disponible
+          if (data.Image || data.image) {
+            infoHtml += '<div style="text-align:center;margin-bottom:20px"><img src="' + (data.Image || data.image) + '" alt="' + escapeHtml(data.Name || data.name || '') + '" style="max-width:200px;height:auto;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.2)"/></div>';
+          }
+          
+          // Infos principales en grille
+          infoHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px">';
+          
+          if (data.CreationDate || data.creationDate) {
+            infoHtml += '<div style="background:#f0f4f8;padding:15px;border-radius:8px;border-left:4px solid #667eea"><p style="font-size:12px;color:#666;margin-bottom:5px">ANNÉE DE CRÉATION</p><p style="font-size:20px;font-weight:bold;color:#333">' + escapeHtml(String(data.CreationDate || data.creationDate)) + '</p></div>';
+          }
+          
+          if (data.FirstAlbum || data.firstAlbum) {
+            infoHtml += '<div style="background:#f0f4f8;padding:15px;border-radius:8px;border-left:4px solid #667eea"><p style="font-size:12px;color:#666;margin-bottom:5px">PREMIER ALBUM</p><p style="font-size:16px;font-weight:bold;color:#333">' + escapeHtml(String(data.FirstAlbum || data.firstAlbum)) + '</p></div>';
+          }
+          
+          infoHtml += '</div>';
+          
+          // Section des membres
+          const members = data.Members || data.members || [];
+          if (members && members.length) {
+            infoHtml += '<div style="background:#f9fafb;padding:20px;border-radius:8px;border-top:3px solid #667eea"><p style="font-size:14px;font-weight:bold;color:#333;margin-bottom:15px">MEMBRES (' + members.length + ')</p><ul style="list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+            members.forEach(function(m) {
+              infoHtml += '<li style="padding:10px;background:#fff;border-radius:6px;border-left:3px solid #764ba2;font-size:14px;color:#333">' + escapeHtml(m) + '</li>';
+            });
+            infoHtml += '</ul></div>';
+          }
+          
+          infoHtml += '</div>';
+          q('#rawJsonPre').innerHTML = infoHtml;
         })
         .catch(err=>{
-          q('#artistName').textContent = 'Erreur';
+          q('#artistName').textContent = window.i18n ? window.i18n.t('error') : 'Erreur';
           q('#rawJsonPre').textContent = String(err);
         });
     })();
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.i18n && window.i18n.addLanguageSwitcher) {
+        window.i18n.addLanguageSwitcher();
+      }
+    });
   </script>
 </body>
 </html>

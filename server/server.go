@@ -1,7 +1,9 @@
+
 package server
 
 import (
 	"encoding/json"
+	"github.com/RandyTembe/Groupie-Tracker/i18n"
 	"html/template"
 	"log"
 	"net/http"
@@ -23,6 +25,7 @@ type Artist struct {
 	Locations    string   `json:"locations"`
 	ConcertDates string   `json:"concertDates"`
 	Relations    string   `json:"relations"`
+	Musique      string   `json:"musique"`
 }
 
 type Server struct {
@@ -62,6 +65,11 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 func init() {
+	// Charger les traductions
+	if err := i18n.LoadTranslations(filepath.Join(".", "i18n", "translations.json")); err != nil {
+		log.Println("⚠ Impossible de charger les traductions:", err)
+	}
+
 	// Seed sample data si vide
 	// Try to load artists from api/artists.json so API data matches the homepage
 	dataPath := filepath.Join(".", "api", "artists.json")
@@ -96,11 +104,14 @@ func init() {
 func NewServer(addr string) *Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", homeHandler)
+	mux.HandleFunc("/groupes", groupesHandler)
+	mux.HandleFunc("/artist", artistPageHandler)
 	mux.HandleFunc("/artists/", artistPageHandler)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(".", "static")))))
 	mux.HandleFunc("/api", apiInfoHandler)
 	mux.HandleFunc("/api/artists", artistsCollectionHandler)
 	mux.HandleFunc("/api/artists/", artistsItemHandler)
+	mux.HandleFunc("/api/i18n", i18nHandler)
 
 	srv := &http.Server{
 		Addr:         addr,
@@ -117,6 +128,16 @@ func (s *Server) Start() error {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+	// Servir la page d'accueil
+	tmplPath := filepath.Join("templates", "home.html")
+	http.ServeFile(w, r, tmplPath)
+}
+
+func groupesHandler(w http.ResponseWriter, r *http.Request) {
 	data, err := os.ReadFile(filepath.Join(".", "api", "artists.json"))
 	if err != nil {
 		http.Error(w, "Impossible de lire api/artists.json", http.StatusInternalServerError)
@@ -230,6 +251,19 @@ func apiInfoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	_ = json.NewEncoder(w).Encode(info)
+}
+
+func i18nHandler(w http.ResponseWriter, r *http.Request) {
+	lang := i18n.GetLanguage(r)
+	// Définir le cookie de langue
+	i18n.SetCookieLanguage(w, lang)
+	// Retourner les traductions
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Content-Language", lang)
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"lang":         lang,
+		"translations": i18n.GetAll(lang),
+	})
 }
 
 func artistPageHandler(w http.ResponseWriter, r *http.Request) {
