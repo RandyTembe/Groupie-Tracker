@@ -3,10 +3,11 @@ package server
 
 import (
 	"encoding/json"
-	"github.com/RandyTembe/Groupie-Tracker/i18n"
+	"io"
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -25,6 +26,7 @@ type Artist struct {
 	Locations    string   `json:"locations"`
 	ConcertDates string   `json:"concertDates"`
 	Relations    string   `json:"relations"`
+	Musique      string   `json:"musique"`
 }
 
 type Server struct {
@@ -64,11 +66,6 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 func init() {
-	// Charger les traductions
-	if err := i18n.LoadTranslations(filepath.Join(".", "i18n", "translations.json")); err != nil {
-		log.Println("⚠ Impossible de charger les traductions:", err)
-	}
-
 	// Seed sample data si vide
 	// Try to load artists from api/artists.json so API data matches the homepage
 	dataPath := filepath.Join(".", "api", "artists.json")
@@ -104,13 +101,13 @@ func NewServer(addr string) *Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", homeHandler)
 	mux.HandleFunc("/groupes", groupesHandler)
-	mux.HandleFunc("/artist", artistPageHandler)
-	mux.HandleFunc("/artists/", artistPageHandler)
+	// Removed artist detail routes; we keep only modal on listing page
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(".", "static")))))
 	mux.HandleFunc("/api", apiInfoHandler)
 	mux.HandleFunc("/api/artists", artistsCollectionHandler)
 	mux.HandleFunc("/api/artists/", artistsItemHandler)
 	mux.HandleFunc("/api/i18n", i18nHandler)
+	mux.HandleFunc("/api/proxy", proxyHandler)
 
 	srv := &http.Server{
 		Addr:         addr,
@@ -247,26 +244,46 @@ func apiInfoHandler(w http.ResponseWriter, r *http.Request) {
 	info := map[string]string{
 		"base":    "/api",
 		"artists": "/api/artists",
+		"proxy":   "/api/proxy?url=...",
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	_ = json.NewEncoder(w).Encode(info)
 }
 
 func i18nHandler(w http.ResponseWriter, r *http.Request) {
-	lang := i18n.GetLanguage(r)
-	// Définir le cookie de langue
-	i18n.SetCookieLanguage(w, lang)
-	// Retourner les traductions
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Header().Set("Content-Language", lang)
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
-		"lang":         lang,
-		"translations": i18n.GetAll(lang),
+		"lang":         "en",
+		"translations": map[string]string{},
 	})
 }
 
-func artistPageHandler(w http.ResponseWriter, r *http.Request) {
-	// serve a simple artist detail page (the page will fetch the JSON via /api)
-	tmplPath := filepath.Join("templates", "artist.html")
-	http.ServeFile(w, r, tmplPath)
+// Artist detail page removed – kept via modal on listing
+
+// proxyHandler sécurise l'accès aux endpoints externes nécessaires (dates/locations)
+func proxyHandler(w http.ResponseWriter, r *http.Request) {
+	raw := r.URL.Query().Get("url")
+	if raw == "" {
+		writeJSONError(w, http.StatusBadRequest, "missing url")
+		return
+	}
+	u, err := url.Parse(raw)
+	if err != nil {
+		writeJSONError(w, http.StatusBadRequest, "invalid url")
+		return
+	}
+	// Autoriser seulement l'API groupietrackers
+	if u.Scheme != "https" || u.Host != "groupietrackers.herokuapp.com" || !strings.HasPrefix(u.Path, "/api/") {
+		writeJSONError(w, http.StatusForbidden, "forbidden target")
+		return
+	}
+	resp, err := http.Get(u.String())
+	if err != nil {
+		writeJSONError(w, http.StatusBadGateway, "upstream error")
+		return
+	}
+	defer resp.Body.Close()
+	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+	w.WriteHeader(resp.StatusCode)
+	_, _ = io.Copy(w, resp.Body)
 }

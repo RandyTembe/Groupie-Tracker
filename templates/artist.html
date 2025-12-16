@@ -11,41 +11,89 @@
     .artist-image { width:140px; height:140px; background-size:cover; background-position:center; border-radius:8px }
     .artist-name { font-size:1.8rem; font-weight:700 }
     .raw-json-pre { white-space:pre-wrap; max-height:640px; overflow:auto; background:#f7f7f7; color:#111; border-radius:6px; padding:12px; font-family:monospace }
-    /* bouton retour stylisé comme contrôle fixe et accessible */
     .back-link {
       position: fixed;
-      top: 12px;
-      left: 12px;
+      top: 20px;
+      left: 20px;
       z-index: 1100;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: rgb(255, 255, 255); 
-      color: #111; /* couleur du texte */
-      padding: 6px 10px;
+      background: rgba(255,255,255,0.92);
+      color: #111;
+      padding: 8px 12px;
       border-radius: 8px;
-      border: 1px solid rgb(51, 92, 227);
-      box-shadow: 0 6px 18px rgb(48, 106, 220); /* effet ombre du bouton retour */
+      border: 1px solid rgba(0,0,0,0.12);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
       font-weight: 600;
       cursor: pointer;
       text-decoration: none;
     }
     .back-link:focus {
-      outline: 3px solid rgba(80, 12, 237, 0.349);
+      outline: 3px solid rgba(131,163,252,0.35);
       outline-offset: 2px;
     }
     .back-link:hover { transform: translateY(-1px); }
+    .player-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.95);
+      padding: 10px 20px;
+      border-radius: 25px;
+      border: none;
+      cursor: pointer !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      min-width: 60px;
+      font-size: inherit;
+      font-family: inherit;
+      position: relative;
+    }
+    .player-btn::before {
+      content: '';
+      width: 0;
+      height: 0;
+      border-left: 10px solid #333;
+      border-top: 7px solid transparent;
+      border-bottom: 7px solid transparent;
+      display: inline-block;
+      pointer-events: none;
+    }
+    .player-btn::after {
+      content: '';
+      width: 70px;
+      height: 3px;
+      background: #ddd;
+      border-radius: 2px;
+      display: inline-block;
+      pointer-events: none;
+    }
+    .player-btn:hover {
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      transform: scale(1.05);
+    }
+    .player-btn:active {
+      transform: scale(0.98);
+    }
+    #audioPlayer {
+      display: none;
+    }
   </style>
 </head>
 <body>
   <div class="artist-container">
-    <button id="backBtn" class="back-link" type="button" data-i18n="back_button">← Retour</button>
+    <button id="backBtn" class="back-link" type="button" aria-label="Retour">← Retour</button>
     <div id="artistRoot">
       <div class="artist-header">
         <div id="artistImage" class="artist-image" aria-hidden="true"></div>
-        <div>
+        <div style="flex:1">
           <div id="artistName" class="artist-name" data-i18n="loading">Chargement…</div>
-          <div id="artistMeta" style="margin-top:8px;color:#ddd"></div> 
+          <div id="artistMeta" style="margin-top:8px;color:#ddd;margin-bottom:16px"></div>
+          <button id="playerBtn" type="button" aria-label="Lire la musique" class="player-btn"></button>
+          <audio id="audioPlayer"></audio>
         </div>
       </div>
       <h3>Infos :</h3>
@@ -62,6 +110,50 @@
         if (history.length > 1) history.back(); else window.location.href = '/';
       };
       const btn = q('#backBtn'); if (btn) btn.addEventListener('click', _back);
+      
+      let musicUrl = null;
+      let isSoundCloud = false;
+      
+      // Attacher l'événement au bouton player dès maintenant
+      const playerBtn = q('#playerBtn');
+      const audioPlayer = q('#audioPlayer');
+      if (playerBtn) {
+        playerBtn.addEventListener('click', function(e) {
+          console.log('BOUTON CLIQUÉ!', musicUrl);
+          if (musicUrl) {
+            if (isSoundCloud) {
+              // Créer un modal avec le lecteur SoundCloud embed
+              const modal = document.createElement('div');
+              modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;';
+              modal.innerHTML = `
+                <div style="background:#fff;padding:20px;border-radius:12px;max-width:600px;width:90%;">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:15px;">
+                    <h3 style="margin:0;color:#333;">Lecteur Audio</h3>
+                    <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#666;">&times;</button>
+                  </div>
+                  <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" 
+                    src="https://w.soundcloud.com/player/?url=${encodeURIComponent(musicUrl)}&color=%23ff5500&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
+                </div>
+              `;
+              document.body.appendChild(modal);
+              modal.addEventListener('click', function(e) {
+                if (e.target === modal) modal.remove();
+              });
+            } else {
+              if (audioPlayer.paused) {
+                audioPlayer.play().catch(err => {
+                  console.error('Erreur:', err);
+                  window.open(musicUrl, '_blank');
+                });
+              } else {
+                audioPlayer.pause();
+              }
+            }
+          }
+        });
+        console.log('Event attaché au bouton player');
+      }
+      
       function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
       // extraire l'ID du chemin /artists/:id
       const path = window.location.pathname || '';
@@ -77,6 +169,17 @@
           q('#artistName').textContent = data.name || data.Name || '—';
           q('#artistMeta').textContent = (data.creationDate ? 'Créé en ' + data.creationDate : '') + (data.firstAlbum ? (' • Premier album: ' + data.firstAlbum) : '');
           if (data.image || data.Image) q('#artistImage').style.backgroundImage = 'url("' + (data.image||data.Image) + '")';
+          
+          // Configurer la musique
+          if (data.musique) {
+            musicUrl = data.musique;
+            isSoundCloud = musicUrl.includes('soundcloud.com');
+            if (audioPlayer && !isSoundCloud) {
+              audioPlayer.src = musicUrl;
+              audioPlayer.crossOrigin = 'anonymous';
+            }
+            console.log('Musique configurée:', musicUrl, 'SoundCloud:', isSoundCloud);
+          }
           
           // Construire un affichage beau plutôt que du JSON brut
           let infoHtml = '<div style="padding:20px">';
