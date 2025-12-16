@@ -96,18 +96,34 @@
         .search-bar {
             margin-bottom: 40px;
             display: flex;
-            gap: 10px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
         }
 
         .search-bar input {
-            flex: 1;
-            max-width: 300px;
+            width: 100%;
+            max-width: 360px;
             padding: 12px 16px;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 8px;
             color: hsl(var(--foreground));
             font-size: 14px;
+        }
+
+        .genres-inline {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .genres-inline .genres-title {
+            font-family: var(--font-display);
+            letter-spacing: 0.5px;
+            font-size: 16px;
+            color: hsl(var(--foreground));
         }
 
         .search-bar input::placeholder {
@@ -119,6 +135,7 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 40px;
             padding: 20px;
+            overflow: visible;
         }
 
         .artist-card {
@@ -130,6 +147,8 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
+            border-radius: 12px;
         }
 
         .artist-card:hover {
@@ -137,6 +156,23 @@
             border-color: rgba(220, 80%, 55%, 0.6);
             transform: translateY(-4px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .badge-2026 {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: linear-gradient(135deg, #ec4899, #7c3aed);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            box-shadow: 0 6px 16px rgba(236, 72, 153, 0.5);
+            z-index: 100;
+            text-transform: uppercase;
+            white-space: nowrap;
         }
 
         .artist-image {
@@ -232,6 +268,12 @@
         .tour-list { list-style: none; padding:0; margin:0; display:grid; gap:6px }
         .tour-list li { background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:8px 10px; font-size:12px; color:rgba(255,255,255,0.9) }
         .tour-empty { color: rgba(255,255,255,0.6); font-size:12px }
+
+        /* Genres */
+        .genres-grid { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+        .genre-chip { background: rgba(255,255,255,0.06); border:1px solid rgba(220, 80%, 55%, 0.4); color: #fff; padding:8px 12px; border-radius:999px; font-size:13px; letter-spacing:0.3px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); transition: all 0.2s ease; cursor: pointer; user-select: none; }
+        .genre-chip:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
+        .genre-chip.active { background: linear-gradient(135deg, #ec4899, #7c3aed); border-color: rgba(255,255,255,0.6); box-shadow: 0 6px 16px rgba(236,72,153,0.45); }
 
         /* Modal map + extrait */
         .modal-backdrop {
@@ -441,6 +483,10 @@
     <section id="artistes">
         <div class="search-bar">
             <input type="text" id="search-bar" placeholder="Recherche un artiste...">
+            <div id="genres" class="genres-inline">
+                <div class="genres-title">Genres</div>
+                <div id="genres-list" class="genres-grid"></div>
+            </div>
         </div>
 
         <div class="grid">
@@ -488,14 +534,12 @@
     </section>
 
     <section id="concerts" style="margin-top:60px;">
-        <h2 style="font-family: var(--font-display); letter-spacing: 1px; margin-bottom: 10px; color: hsl(var(--foreground));">Concerts</h2>
-        <p style="color: rgba(255,255,255,0.7);">Les informations concerts arriveront bientôt.</p>
+        <h2 style="font-family: var(--font-display); letter-spacing: 1px; margin-bottom: 20px; color: hsl(var(--foreground));">Concerts 2026</h2>
+        <div id="concerts-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+            <p style="color: rgba(255,255,255,0.7); grid-column: 1 / -1;">Chargement des concerts 2026...</p>
+        </div>
     </section>
 
-    <section id="genres" style="margin-top:60px;">
-        <h2 style="font-family: var(--font-display); letter-spacing: 1px; margin-bottom: 10px; color: hsl(var(--foreground));">Genres</h2>
-        <p style="color: rgba(255,255,255,0.7);">Les genres seront listés ici prochainement.</p>
-    </section>
 </main>
 
 <!-- Modal Map & Extrait -->
@@ -534,16 +578,22 @@
 <script>
     const searchBar = document.getElementById('search-bar');
     const cards = document.querySelectorAll('.artist-card');
+    let currentGenre = 'Tous';
+
+    function applyFilters() {
+        const query = (searchBar?.value || '').toLowerCase();
+        cards.forEach(card => {
+            const name = card.dataset.name?.toLowerCase() || '';
+            const genre = card.dataset.genre || 'Autre';
+            const matchName = name.includes(query);
+            const matchGenre = currentGenre === 'Tous' || genre === currentGenre;
+            card.style.display = (matchName && matchGenre) ? '' : 'none';
+        });
+    }
 
     // Filtre recherche
     if (searchBar) {
-        searchBar.addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            cards.forEach(card => {
-                const name = card.dataset.name.toLowerCase();
-                card.style.display = name.includes(query) ? '' : 'none';
-            });
-        });
+        searchBar.addEventListener('input', applyFilters);
     }
 
     // Modal logic
@@ -663,6 +713,75 @@
         card.addEventListener('click', () => openModal(card));
     });
 
+    // Associer un genre simple par artiste
+    const genreMap = {
+        'Queen': 'Rock',
+        'SOJA': 'Reggae',
+        'Pink Floyd': 'Rock',
+        'Scorpions': 'Metal',
+        'XXXTentacion': 'Rap',
+        'Mac Miller': 'Rap',
+        'Joyner Lucas': 'Rap',
+        'Kendrick Lamar': 'Hip-Hop',
+        'ACDC': 'Hard Rock',
+        'Pearl Jam': 'Rock',
+        'Katy Perry': 'Pop',
+        'Rihanna': 'Pop',
+        'Genesis': 'Rock',
+        'Phil Collins': 'Pop',
+        'Led Zeppelin': 'Rock',
+        'The Jimi Hendrix Experience': 'Rock',
+        'Bee Gees': 'Pop',
+        'Deep Purple': 'Rock',
+        'Aerosmith': 'Rock',
+        'Dire Straits': 'Rock',
+        'Mamonas Assassinas': 'Rock',
+        'Thirty Seconds to Mars': 'Alternative',
+        'Imagine Dragons': 'Alternative',
+        'Juice Wrld': 'Rap',
+        'Logic': 'Rap',
+        'Alec Benjamin': 'Pop',
+        'Bobby McFerrins': 'Soul',
+        'R3HAB': 'EDM',
+        'Post Malone': 'Hip-Hop',
+        'Travis Scott': 'Hip-Hop',
+        'J. Cole': 'Hip-Hop',
+        'Nickelback': 'Rock',
+        'Mobb Deep': 'Hip-Hop',
+        "Guns N' Roses": 'Hard Rock',
+        'NWA': 'Hip-Hop',
+        'U2': 'Rock',
+        'Arctic Monkeys': 'Indie',
+        'Fall Out Boy': 'Alternative',
+        'Gorillaz': 'Alternative',
+        'Eagles': 'Rock',
+        'Linkin Park': 'Rock',
+        'Red Hot Chili Peppers': 'Rock',
+        'Eminem': 'Rap',
+        'Green Day': 'Rock',
+        'Metallica': 'Metal',
+        'Coldplay': 'Pop',
+        'Maroon 5': 'Pop',
+        'Twenty One Pilots': 'Alternative',
+        'The Rolling Stones': 'Rock',
+        'Muse': 'Rock',
+        'Foo Fighters': 'Rock',
+        'The Chainsmokers': 'EDM',
+        'Nirvana': 'Rock',
+        'Sabaton': 'Metal',
+        'Skillet': 'Metal',
+        'Avicii': 'EDM'
+    };
+
+    cards.forEach(card => {
+        const name = card.dataset.name;
+        const g = genreMap[name] || 'Autre';
+        card.dataset.genre = g;
+    });
+
+    // Appliquer filtres initiaux
+    applyFilters();
+
     // Charger les tournées 2026 pour chaque artiste via le proxy serveur
     async function fetchJSON(u){
         const r = await fetch(u);
@@ -680,10 +799,47 @@
         return m ? parseInt(m[1],10) : null;
     }
 
-    function formatDateLabel(s){
-        // garder la chaîne brute; on peut améliorer avec Intl.DateTimeFormat si on détecte ISO
+    function formatDateForDisplay(s){
+        // Extraire la date lisible et la ville si disponible
+        // Format: "26 FÉV. 2026. jeu 19:30. Lancaster, PA, États-Unis."
+        if (!s) return s;
+        
+        // Extraire la première partie (date lisible)
+        const parts = s.split('.');
+        if (parts.length > 0) {
+            let dateStr = parts[0].trim();
+            
+            // Si on a plusieurs parties, chercher la localisation
+            if (parts.length > 3) {
+                const location = parts[parts.length - 2].trim();
+                if (location && location.length > 0 && !location.match(/\d{2}:\d{2}/)) {
+                    return dateStr + ' - ' + location;
+                }
+            }
+            return dateStr;
+        }
         return s;
     }
+
+    function buildTicketUrl(artist, date){
+        const q = `${artist} billets ${date}`;
+        return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+    }
+
+    // Dates manuelles pour Skillet (tournée 2026)
+    const manualSkilletDates = [
+        '26 FÉV. 2026. jeu 19:30. Lancaster, PA, États-Unis.',
+        '27 FÉV. 2026. ven 19:00. Bensalem, PA, États-Unis.',
+        '28 FÉV. 2026. sam 19:00. Huntington, WV, États-Unis.',
+        '14 MAR. 2026. sam 20:00. Charles Town, WV, États-Unis.',
+        '15 MAR. 2026. dim 20:00. Chattangooda, TN, États-Unis.',
+        '19 MAR. 2026. jeu 19:00. Raleigh, NC, États-Unis.',
+        '20 MAR. 2026. ven 19:00. Myrtle Beach, SC, États-Unis.',
+        '16 AVR. 2026. jeu 19:00. Riverside, CA, États-Unis.',
+        '17 AVR. 2026. ven 19:00. San Diego, CA, États-Unis.',
+        '18 AVR. 2026. sam 19:00. Anaheim, CA, États-Unis.',
+        '28 AVR 2026. mar 19:00. Paris, Zenith, FRANCE'
+    ];
 
     (async function loadTours(){
         for (const card of cards) {
@@ -696,15 +852,27 @@
                 const data = await fetchJSON(proxy);
                 // Les endpoints /api/dates/:id renvoient { id, dates: ["YYYY-MM-DD", ...] }
                 const dates = Array.isArray(data.dates) ? data.dates : (Array.isArray(data.Dates) ? data.Dates : []);
-                const in2026 = dates.filter(d => yearFromDateStr(d) === 2026);
+                let dates2026 = dates.filter(d => yearFromDateStr(d) === 2026);
+                // Ajouter les dates manuelles de Skillet
+                if (artistName === 'Skillet') {
+                    dates2026 = dates2026.concat(manualSkilletDates);
+                }
+
                 if (!section || !list) continue;
-                if (in2026.length === 0) {
+                if (dates2026.length === 0) {
                     section.remove();
                 } else {
                     list.innerHTML = '';
-                    in2026.forEach(d => {
+                    dates2026.forEach(d => {
                         const li = document.createElement('li');
-                        li.textContent = formatDateLabel(d);
+                        const a = document.createElement('a');
+                        a.href = buildTicketUrl(artistName, d);
+                        a.target = '_blank';
+                        a.rel = 'noopener noreferrer';
+                        a.textContent = formatDateForDisplay(d);
+                        a.style.color = 'inherit';
+                        a.style.textDecoration = 'none';
+                        li.appendChild(a);
                         list.appendChild(li);
                     });
                 }
@@ -713,6 +881,106 @@
                 if (section) section.remove();
             }
         }
+    })();
+
+    // Charger tous les concerts 2026 dans la section concerts
+    (async function loadConcertsSection(){
+        const concertsContainer = document.getElementById('concerts-list');
+        if (!concertsContainer) return;
+        
+        const allConcerts = [];
+        
+        for (const card of cards) {
+            try {
+                const concertsUrl = card.dataset.concerts;
+                const artistName = card.dataset.name || '';
+                if (!concertsUrl) {
+                    console.warn(`${artistName}: pas d'URL de concerts`);
+                    continue;
+                }
+                
+                const proxy = `/api/proxy?url=${encodeURIComponent(concertsUrl)}`;
+                const data = await fetchJSON(proxy);
+                const dates = Array.isArray(data.dates) ? data.dates : (Array.isArray(data.Dates) ? data.Dates : []);
+                const in2026 = dates.filter(d => yearFromDateStr(d) === 2026);
+
+                let dates2026 = [...in2026];
+                if (artistName === 'Skillet') {
+                    dates2026 = dates2026.concat(manualSkilletDates);
+                }
+
+                dates2026.forEach(d => {
+                    allConcerts.push({ artist: artistName, date: d });
+                });
+            } catch (e) {
+                console.error(`Erreur pour ${card.dataset.name}:`, e);
+            }
+        }
+        
+        // Afficher les concerts
+        concertsContainer.innerHTML = '';
+        if (allConcerts.length === 0) {
+            concertsContainer.innerHTML = '<p style="color: rgba(255,255,255,0.7); grid-column: 1 / -1;">Aucun concert en 2026.</p>';
+        } else {
+            allConcerts.forEach(concert => {
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(220, 80%, 55%, 0.3);
+                    border-radius: 12px;
+                    padding: 20px;
+                    text-align: center;
+                    transition: all 0.3s ease;
+                `;
+                const artistEl = document.createElement('div');
+                artistEl.style.cssText = 'font-size: 18px; font-weight: 700; color: #ec4899; margin-bottom: 10px;';
+                artistEl.textContent = concert.artist;
+
+                const dateEl = document.createElement('a');
+                dateEl.href = buildTicketUrl(concert.artist, concert.date);
+                dateEl.target = '_blank';
+                dateEl.rel = 'noopener noreferrer';
+                dateEl.style.cssText = 'font-size: 14px; color: #60a5fa; text-decoration: none;';
+                dateEl.textContent = formatDateForDisplay(concert.date);
+
+                card.appendChild(artistEl);
+                card.appendChild(dateEl);
+                card.addEventListener('mouseenter', () => {
+                    card.style.background = 'rgba(255, 255, 255, 0.08)';
+                    card.style.borderColor = 'rgba(220, 80%, 55%, 0.6)';
+                    card.style.transform = 'translateY(-4px)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.background = 'rgba(255, 255, 255, 0.05)';
+                    card.style.borderColor = 'rgba(220, 80%, 55%, 0.3)';
+                    card.style.transform = 'translateY(0)';
+                });
+                concertsContainer.appendChild(card);
+            });
+        }
+    })();
+
+    // Peupler la section Genres
+    (function loadGenres(){
+        const genresList = document.getElementById('genres-list');
+        if (!genresList) return;
+        const genres = [
+            'Tous','Rock','Metal','Pop','Hip-Hop','Rap','Reggae','EDM','Alternative','Hard Rock','Indie','Electro','Soul'
+        ];
+        genresList.innerHTML = '';
+        genres.forEach(g => {
+            const chip = document.createElement('div');
+            chip.className = 'genre-chip';
+            chip.textContent = g;
+            if (g === 'Tous') chip.classList.add('active');
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                currentGenre = g;
+                applyFilters();
+            });
+            genresList.appendChild(chip);
+        });
     })();
 </script>
 
