@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="title">Groupie Tracker</title>
+    <title data-i18n="title">Trouve ton artistes , groupes favoris</title>
     <link rel="stylesheet" href="/static/CSS/image.css">
     <link rel="stylesheet" href="/static/CSS/notes.css">
     <style>
@@ -77,6 +77,8 @@
             text-decoration: none;
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
             pointer-events: auto;
+            position: relative;
+            z-index: 100;
         }
 
         .btn-primary:hover {
@@ -115,7 +117,7 @@
 <body>
     <div class="welcome-container">
         <div class="welcome-icon">🎵</div>
-        <h1 data-i18n="home_title">Bienvenue dans Groupie Tracker</h1>
+        <h1 data-i18n="home_title">Trouve tes artistes et groupes favoris </h1>
         <p class="subtitle" data-i18n="home_subtitle">Explorez les meilleurs groupes de musique</p>
         <button id="viewGroupsBtn" class="btn-primary" data-i18n="view_groups">Voir les groupes</button>
         
@@ -128,25 +130,50 @@
                 <div class="feature-icon">🎸</div>
                 <div class="feature-text">Groupes</div>
             </div>
-            <div class="feature">
-                <div class="feature-icon">🌍</div>
-                <div class="feature-text">Mondial</div>
-            </div>
         </div>
     </div>
 
     <script src="/static/i18n.js"></script>
     <script>
-        // Navigation directe vers /groupes
-        window.addEventListener('load', function() {
+        // S'assurer que le bouton est cliquable - plusieurs niveaux de protection
+        function setupButton() {
             const btn = document.getElementById('viewGroupsBtn');
-            if (btn) {
-                btn.addEventListener('click', function() {
-                    window.location.href = '/groupes';
-                });
-                console.log('✓ Bouton configuré');
-            }
+            if (!btn) return;
+            
+            // Méthode 1: addEventListener
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.href = '/groupes';
+            });
+            
+            // Méthode 2: onclick direct
+            btn.onclick = function(e) {
+                e.preventDefault();
+                window.location.href = '/groupes';
+                return false;
+            };
+            
+            // Méthode 3: pointer-events
+            btn.style.pointerEvents = 'auto';
+            btn.style.cursor = 'pointer';
+            
+            console.log('✓ Bouton "Voir les groupes" configuré et cliquable');
+        }
 
+        // Exécuter dès que possible
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupButton);
+        } else {
+            setupButton();
+        }
+        
+        // Backup - essayer après un délai
+        setTimeout(setupButton, 100);
+
+        window.addEventListener('load', function() {
+            setupButton();
+            
             // Ajouter le sélecteur de langue
             setTimeout(() => {
                 if (window.i18n && window.i18n.addLanguageSwitcher) {
