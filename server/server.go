@@ -101,6 +101,7 @@ func NewServer(addr string) *Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", homeHandler)
 	mux.HandleFunc("/groupes", groupesHandler)
+	mux.HandleFunc("/historique", historiqueHandler)
 	// Removed artist detail routes; we keep only modal on listing page
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(".", "static")))))
 	mux.HandleFunc("/api", apiInfoHandler)
@@ -152,6 +153,11 @@ func groupesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = tmpl.Execute(w, artists)
+}
+
+func historiqueHandler(w http.ResponseWriter, r *http.Request) {
+	tmplPath := filepath.Join("templates", "historique.html")
+	http.ServeFile(w, r, tmplPath)
 }
 
 func artistsCollectionHandler(w http.ResponseWriter, r *http.Request) {
