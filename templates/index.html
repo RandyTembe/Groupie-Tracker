@@ -82,6 +82,8 @@
             font-weight: 600;
             font-size: 14px;
             transition: transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .btn-billets:hover {
@@ -122,7 +124,7 @@
         .genres-inline .genres-title {
             font-family: var(--font-display);
             letter-spacing: 0.5px;
-            font-size: 16px;
+            font-size: 16px;nn
             color: hsl(var(--foreground));
         }
 
@@ -475,7 +477,7 @@
         <a href="#artistes">Artistes</a>
         <a href="#concerts">Concerts</a>
         <a href="#genres">Genres</a>
-        <button class="btn-billets">MES BILLETS</button>
+        <a href="/historique" class="btn-billets">MES BILLETS</a>
     </nav>
 </header>
 
@@ -523,10 +525,6 @@
                         <span class="member-tag">{{.}}</span>
                         {{end}}
                     </div>
-                </div>
-                <div class="tour-2026">
-                    <div class="tour-title">Tournée 2026</div>
-                    <ul class="tour-list"></ul>
                 </div>
             </div>
             {{end}}
@@ -709,6 +707,14 @@
         if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
     });
 
+    // Arrêter la musique en quittant la page
+    window.addEventListener('beforeunload', () => {
+        if (modalAudio) {
+            modalAudio.pause();
+            modalAudio.currentTime = 0;
+        }
+    });
+
     cards.forEach(card => {
         card.addEventListener('click', () => openModal(card));
     });
@@ -841,6 +847,18 @@
         '28 AVR 2026. mar 19:00. Paris, Zenith, FRANCE'
     ];
 
+    const manualKatyPerryDates = [
+        '3 JUIL. 2026. ven 21:00. Arras, Main Square festival, FRANCE',
+        '9 JUIL. 2026. jeu 21:00. Savoie, Paloma, FRANCE',
+        '11 JUIL. 2026. sam 21:00. Nîmes, Radiant-Bellevue, FRANCE',
+        '12 JUIL. 2026. dim 21:00. Nacy open air, FRANCE'
+    ];
+
+    const manualColdplaytDates = [
+        '15 JUIL. 2026. mer 21:00. Lyon, Groupama Stadium, FRANCE',
+        '18 JUIL. 2026. sam 21:00. Paris, Stade de France, FRANCE'
+    ];
+
     (async function loadTours(){
         for (const card of cards) {
             try {
@@ -884,7 +902,7 @@
     })();
 
     // Charger tous les concerts 2026 dans la section concerts
-    (async function loadConcertsSection(){
+    async function loadConcertsSection(){
         const concertsContainer = document.getElementById('concerts-list');
         if (!concertsContainer) return;
         
@@ -907,6 +925,12 @@
                 let dates2026 = [...in2026];
                 if (artistName === 'Skillet') {
                     dates2026 = dates2026.concat(manualSkilletDates);
+                }
+                if (artistName === 'Katy Perry') {
+                    dates2026 = dates2026.concat(manualKatyPerryDates);
+                }
+                if (artistName === 'Coldplay') {
+                    dates2026 = dates2026.concat(manualColdplaytDates);
                 }
 
                 dates2026.forEach(d => {
@@ -936,14 +960,26 @@
                 artistEl.style.cssText = 'font-size: 18px; font-weight: 700; color: #ec4899; margin-bottom: 10px;';
                 artistEl.textContent = concert.artist;
 
+                const genreEl = document.createElement('div');
+                const genre = genreMap[concert.artist] || 'Autre';
+                genreEl.style.cssText = 'font-size: 13px; color: #a78bfa; margin-bottom: 12px; letter-spacing: 0.3px;';
+                genreEl.textContent = genre;
+
                 const dateEl = document.createElement('a');
                 dateEl.href = buildTicketUrl(concert.artist, concert.date);
                 dateEl.target = '_blank';
                 dateEl.rel = 'noopener noreferrer';
-                dateEl.style.cssText = 'font-size: 14px; color: #60a5fa; text-decoration: none;';
+                dateEl.style.cssText = 'font-size: 14px; color: #60a5fa; text-decoration: underline; cursor: pointer; transition: color 0.2s;';
                 dateEl.textContent = formatDateForDisplay(concert.date);
+                dateEl.addEventListener('mouseenter', () => {
+                    dateEl.style.color = '#93c5fd';
+                });
+                dateEl.addEventListener('mouseleave', () => {
+                    dateEl.style.color = '#60a5fa';
+                });
 
                 card.appendChild(artistEl);
+                card.appendChild(genreEl);
                 card.appendChild(dateEl);
                 card.addEventListener('mouseenter', () => {
                     card.style.background = 'rgba(255, 255, 255, 0.08)';
@@ -958,14 +994,14 @@
                 concertsContainer.appendChild(card);
             });
         }
-    })();
+    }
 
     // Peupler la section Genres
     (function loadGenres(){
         const genresList = document.getElementById('genres-list');
         if (!genresList) return;
         const genres = [
-            'Tous','Rock','Metal','Pop','Hip-Hop','Rap','Reggae','EDM','Alternative','Hard Rock','Indie','Electro','Soul'
+            'Tous','Rock','Metal','Pop','Hip-Hop','Rap','Reggae','EDM','Alternative','Hard Rock','Indie','Soul'
         ];
         genresList.innerHTML = '';
         genres.forEach(g => {
@@ -982,6 +1018,9 @@
             genresList.appendChild(chip);
         });
     })();
+
+    // Charger les concerts après que genreMap soit défini
+    loadConcertsSection();
 </script>
 
 </body>
