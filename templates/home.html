@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="title">Trouve ton artistes , groupes favoris</title>
+    <link rel="stylesheet" href="/static/CSS/image.css">
+    <link rel="stylesheet" href="/static/CSS/notes.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .welcome-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 60px 40px;
+            text-align: center;
+            max-width: 600px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .welcome-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            pointer-events: auto;
+            position: relative;
+            z-index: 100;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid #eee;
+        }
+
+        .feature {
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .feature-text {
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-container">
+        <div class="welcome-icon">🎵</div>
+        <h1 data-i18n="home_title">Trouve tes artistes et groupes favoris </h1>
+        <p class="subtitle" data-i18n="home_subtitle">Explorez les meilleurs groupes de musique</p>
+        <button id="viewGroupsBtn" class="btn-primary" data-i18n="view_groups">Voir les groupes</button>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🎤</div>
+                <div class="feature-text">Artistes</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎸</div>
+                <div class="feature-text">Groupes</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/i18n.js"></script>
+    <script>
+        // S'assurer que le bouton est cliquable - plusieurs niveaux de protection
+        function setupButton() {
+            const btn = document.getElementById('viewGroupsBtn');
+            if (!btn) return;
+            
+            // Méthode 1: addEventListener
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.href = '/groupes';
+            });
+            
+            // Méthode 2: onclick direct
+            btn.onclick = function(e) {
+                e.preventDefault();
+                window.location.href = '/groupes';
+                return false;
+            };
+            
+            // Méthode 3: pointer-events
+            btn.style.pointerEvents = 'auto';
+            btn.style.cursor = 'pointer';
+            
+            console.log('✓ Bouton "Voir les groupes" configuré et cliquable');
+        }
+
+        // Exécuter dès que possible
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupButton);
+        } else {
+            setupButton();
+        }
+        
+        // Backup - essayer après un délai
+        setTimeout(setupButton, 100);
+
+        window.addEventListener('load', function() {
+            setupButton();
+            
+            // Ajouter le sélecteur de langue
+            setTimeout(() => {
+                if (window.i18n && window.i18n.addLanguageSwitcher) {
+                    window.i18n.addLanguageSwitcher();
+                }
+            }, 200);
+        });
+    </script>
+</body>
+</html>

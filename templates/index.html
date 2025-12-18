@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Groupie Tracker - Trouve tes artistes favoris</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            --background: 220 25% 6%;
+            --foreground: 210 40% 98%;
+            --primary: 220 80% 55%;
+            --gradient-dark: linear-gradient(180deg, hsl(220, 20%, 8%) 0%, hsl(220, 20%, 4%) 100%);
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-family: var(--font-body);
+            background: var(--gradient-dark);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(220, 100%, 100%, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            font-family: var(--font-display);
+            color: hsl(var(--primary));
+            letter-spacing: 2px;
+        }
+
+        .logo-icon {
+            margin-right: 10px;
+        }
+
+        nav {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        nav a {
+            color: hsl(var(--foreground));
+            text-decoration: none;
+            font-size: 15px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        nav a:hover {
+            opacity: 1;
+        }
+
+        .btn-billets {
+            background: hsl(var(--primary));
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-billets:hover {
+            transform: translateY(-2px);
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .search-bar {
+            margin-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            max-width: 360px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: hsl(var(--foreground));
+            font-size: 14px;
+        }
+
+        .genres-inline {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .genres-inline .genres-title {
+            font-family: var(--font-display);
+            letter-spacing: 0.5px;
+            font-size: 16px;nn
+            color: hsl(var(--foreground));
+        }
+
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            padding: 20px;
+            overflow: visible;
+        }
+
+        .artist-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(220, 80%, 55%, 0.3);
+            border-radius: 12px;
+            padding: 30px 20px;
+            overflow: visible;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            border-radius: 12px;
+        }
+
+        .artist-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(220, 80%, 55%, 0.6);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .badge-2026 {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: linear-gradient(135deg, #ec4899, #7c3aed);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            box-shadow: 0 6px 16px rgba(236, 72, 153, 0.5);
+            z-index: 100;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .artist-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .artist-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+            font-family: var(--font-body);
+            margin: 0;
+            position: relative;
+            padding-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .artist-name::before {
+            content: '●';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ec4899;
+            font-size: 20px;
+        }
+
+        .artist-details {
+            text-align: left;
+            font-size: 13px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .detail-item {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #48ecd6;
+            min-width: 80px;
+            text-shadow: 0 0 2px rgba(236, 72, 153, 0.3);
+        }
+
+        .detail-value {
+            flex: 1;
+            color: #60a5fa;
+            text-shadow: 0 0 3px rgba(96, 165, 250, 0.4);
+        }
+
+        .members-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 5px;
+        }
+
+        .member-tag {
+            background: rgba(236, 72, 153, 0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            border: 1px solid rgba(72, 230, 236, 0.5);
+            color: #ffffff;
+            text-shadow: 0 0 3px rgba(72, 229, 229, 0.685);
+            box-shadow: 0 0 5px rgba(72, 219, 236, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .member-tag:hover {
+            box-shadow: 0 0 10px rgba(72, 236, 219, 0.4);
+            transform: scale(1.05);
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(72, 225, 236, 0.3);
+            margin: 15px 0;
+            box-shadow: 0 0 5px rgba(72, 222, 236, 0.2);
+        }
+
+        /* Tours 2026 */
+        .tour-2026 { margin-top: 14px; text-align:left }
+        .tour-title { font-weight: 700; color:#60a5fa; margin-bottom:6px; letter-spacing:0.3px }
+        .tour-list { list-style: none; padding:0; margin:0; display:grid; gap:6px }
+        .tour-list li { background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:8px 10px; font-size:12px; color:rgba(255,255,255,0.9) }
+        .tour-empty { color: rgba(255,255,255,0.6); font-size:12px }
+
+        /* Genres */
+        .genres-grid { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+        .genre-chip { background: rgba(255,255,255,0.06); border:1px solid rgba(220, 80%, 55%, 0.4); color: #fff; padding:8px 12px; border-radius:999px; font-size:13px; letter-spacing:0.3px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); transition: all 0.2s ease; cursor: pointer; user-select: none; }
+        .genre-chip:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
+        .genre-chip.active { background: linear-gradient(135deg, #ec4899, #7c3aed); border-color: rgba(255,255,255,0.6); box-shadow: 0 6px 16px rgba(236,72,153,0.45); }
+
+        /* Modal map + extrait */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-backdrop.active {
+            display: flex;
+        }
+
+        .modal {
+            background: rgba(26, 32, 44, 0.95);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            border-radius: 14px;
+            padding: 24px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            font-size: 18px;
+            display: grid;
+            place-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-header img {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 22px;
+            letter-spacing: 1px;
+        }
+
+        .modal-body {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 18px;
+        }
+
+        .modal-map {
+            background: radial-gradient(circle at 20% 20%, rgba(236,72,153,0.15), rgba(0,0,0,0.7)),
+                        linear-gradient(135deg, rgba(236,72,153,0.12), rgba(96,165,250,0.12));
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            border-radius: 12px;
+            padding: 14px;
+            position: relative;
+            min-height: 220px;
+            overflow: hidden;
+        }
+
+        .map-pin {
+            position: absolute;
+            top: 35%;
+            left: 55%;
+            transform: translate(-50%, -50%);
+            width: 14px;
+            height: 14px;
+            background: #ec4899;
+            border-radius: 50%;
+            box-shadow: 0 0 18px rgba(236, 72, 153, 0.7);
+        }
+
+        .map-legend {
+            position: absolute;
+            bottom: 10px;
+            left: 14px;
+            right: 14px;
+            background: rgba(0,0,0,0.35);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .modal-excerpt {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(96,165,250,0.25);
+            border-radius: 12px;
+            padding: 14px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .excerpt-title {
+            font-weight: 700;
+            color: #60a5fa;
+            letter-spacing: 0.5px;
+        }
+
+        .excerpt-text {
+            color: rgba(255,255,255,0.8);
+            font-size: 13px;
+        }
+
+        /* Tours dans le modal */
+        .tour-2026-modal { margin-top: 8px; }
+        .tour-2026-modal .tour-title { font-weight:700; color:#60a5fa; margin-bottom:6px }
+        .tour-2026-modal .tour-list { list-style:none; padding:0; margin:0; display:grid; gap:6px }
+        .tour-2026-modal .tour-list li { background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:8px 10px; font-size:12px; color:rgba(255,255,255,0.9) }
+        .tour-2026-modal .tour-empty { color: rgba(255,255,255,0.6); font-size:12px }
+
+        .modal-actions {
+            margin-top: 14px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ec4899, #7c3aed);
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 8px 20px rgba(236,72,153,0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(236,72,153,0.45); }
+        .btn-secondary:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.35); }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            header {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo"><span class="logo-icon"></span> GROUPIE TRACKER </div>
+    <nav>
+        <a href="#artistes">Artistes</a>
+        <a href="#concerts">Concerts</a>
+        <a href="#genres">Genres</a>
+        <a href="/historique" class="btn-billets">MES BILLETS</a>
+    </nav>
+</header>
+
+<main>
+    <section id="artistes">
+        <div class="search-bar">
+            <input type="text" id="search-bar" placeholder="Recherche un artiste...">
+            <div id="genres" class="genres-inline">
+                <div class="genres-title">Genres</div>
+                <div id="genres-list" class="genres-grid"></div>
+            </div>
+        </div>
+
+        <div class="grid">
+            {{range .}}
+            <div class="artist-card" data-id="{{.ID}}" data-name="{{.Name}}" data-locations="{{.Locations}}" data-firstalbum="{{.FirstAlbum}}" data-musique="{{.Musique}}" data-concerts="{{.ConcertDates}}">
+                <img src="{{.Image}}" alt="{{.Name}}" class="artist-image">
+                <div class="artist-name">{{.Name}}</div>
+                
+                <div class="artist-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Création:</span>
+                        <span class="detail-value">{{.CreationDate}}</span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">1er Album:</span>
+                        <span class="detail-value">{{.FirstAlbum}}</span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Concerts:</span>
+                        <span class="detail-value">{{len .Locations}} dates</span>
+                    </div>
+                    
+                    <div class="divider"></div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Membres:</span>
+                        <span class="detail-value">{{len .Members}}</span>
+                    </div>
+                    
+                    <div class="members-list">
+                        {{range .Members}}
+                        <span class="member-tag">{{.}}</span>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+            {{end}}
+        </div>
+    </section>
+
+    <section id="concerts" style="margin-top:60px;">
+        <h2 style="font-family: var(--font-display); letter-spacing: 1px; margin-bottom: 20px; color: hsl(var(--foreground));">Concerts 2026</h2>
+        <div id="concerts-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+            <p style="color: rgba(255,255,255,0.7); grid-column: 1 / -1;">Chargement des concerts 2026...</p>
+        </div>
+    </section>
+
+</main>
+
+<!-- Modal Map & Extrait -->
+<div class="modal-backdrop" id="artistModal">
+    <div class="modal" role="dialog" aria-modal="true">
+        <button class="modal-close" id="modalClose" aria-label="Fermer">✕</button>
+        <div class="modal-header">
+            <img id="modalImage" src="" alt="">
+            <div>
+                <div class="modal-title" id="modalTitle"></div>
+                <div style="color: rgba(255,255,255,0.7); font-size: 13px;" id="modalSub"></div>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="modal-map">
+                <div class="map-pin"></div>
+                <div class="map-legend" id="modalLocations">Localisations en cours de chargement...</div>
+            </div>
+            <div class="modal-excerpt">
+                <div class="excerpt-title">Extrait du single</div>
+                <div id="modalSoundcloud" style="width:100%; display:none;"></div>
+                <audio id="modalAudio" controls style="width:100%; display:none; margin-top:4px;"></audio>
+                <div class="excerpt-text" id="modalExcerpt">Pas d'extrait audio disponible pour l'instant.</div>
+                <div class="tour-2026-modal" id="modalTourContainer">
+                    <div class="tour-title">Tournée 2026</div>
+                    <ul class="tour-list" id="modalTourList"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" id="modalCloseBtn">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const searchBar = document.getElementById('search-bar');
+    const cards = document.querySelectorAll('.artist-card');
+    let currentGenre = 'Tous';
+
+    function applyFilters() {
+        const query = (searchBar?.value || '').toLowerCase();
+        cards.forEach(card => {
+            const name = card.dataset.name?.toLowerCase() || '';
+            const genre = card.dataset.genre || 'Autre';
+            const matchName = name.includes(query);
+            const matchGenre = currentGenre === 'Tous' || genre === currentGenre;
+            card.style.display = (matchName && matchGenre) ? '' : 'none';
+        });
+    }
+
+    // Filtre recherche
+    if (searchBar) {
+        searchBar.addEventListener('input', applyFilters);
+    }
+
+    // Modal logic
+    const modal = document.getElementById('artistModal');
+    const modalClose = document.getElementById('modalClose');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const modalImage = document.getElementById('modalImage');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalSub = document.getElementById('modalSub');
+    const modalLocations = document.getElementById('modalLocations');
+    const modalExcerpt = document.getElementById('modalExcerpt');
+    const modalAudio = document.getElementById('modalAudio');
+    const modalSoundcloud = document.getElementById('modalSoundcloud');
+    const modalTourContainer = document.getElementById('modalTourContainer');
+    const modalTourList = document.getElementById('modalTourList');
+
+    function isSoundCloudUrl(u){
+        if (!u) return false;
+        return u.includes('soundcloud.com') || u.includes('w.soundcloud.com');
+    }
+
+    async function openModal(card) {
+        const id = card.dataset.id;
+        const name = card.dataset.name;
+        const img = card.querySelector('.artist-image')?.src || '';
+        const locations = card.dataset.locations || 'Localisations indisponibles';
+        const firstAlbum = card.dataset.firstalbum || 'Album inconnu';
+        const musique = card.dataset.musique || '';
+        const concertsUrl = card.dataset.concerts || '';
+
+        modalImage.src = img;
+        modalImage.alt = name;
+        modalTitle.textContent = name;
+        modalSub.textContent = `Création / 1er album : ${firstAlbum}`;
+        modalLocations.textContent = `Lieux : ${locations}`;
+        // Reset audio/iframe state
+        modalAudio.pause();
+        modalAudio.currentTime = 0;
+        modalAudio.removeAttribute('src');
+        modalAudio.style.display = 'none';
+        modalSoundcloud.innerHTML = '';
+        modalSoundcloud.style.display = 'none';
+
+        if (musique.trim() !== '') {
+            if (isSoundCloudUrl(musique)) {
+                const embed = `https://w.soundcloud.com/player/?url=${encodeURIComponent(musique)}&auto_play=true&hide_related=false&show_comments=false&show_user=true&show_reposts=false&visual=true`;
+                modalSoundcloud.innerHTML = `<iframe width="100%" height="140" scrolling="no" frameborder="no" allow="autoplay" src="${embed}"></iframe>`;
+                modalSoundcloud.style.display = 'block';
+                modalExcerpt.textContent = `Extrait SoundCloud — cliquez pour lire si besoin.`;
+            } else {
+                modalAudio.src = musique;
+                modalAudio.style.display = 'block';
+                modalAudio.controls = true;
+                modalAudio.style.pointerEvents = 'auto';
+                modalAudio.load();
+                const tryPlay = modalAudio.play();
+                if (tryPlay && typeof tryPlay.catch === 'function') {
+                    tryPlay.catch(() => {});
+                }
+                modalExcerpt.textContent = `Lecture de l'extrait lié à : ${firstAlbum}`;
+            }
+        } else {
+            modalExcerpt.textContent = `Pas d'extrait audio disponible. (Single lié à : ${firstAlbum})`;
+        }
+
+        // Load 2026 tours inside modal
+        if (modalTourList) modalTourList.innerHTML = '';
+        if (modalTourContainer) modalTourContainer.style.display = 'none';
+        if (concertsUrl) {
+            try {
+                const proxy = `/api/proxy?url=${encodeURIComponent(concertsUrl)}`;
+                const data = await fetchJSON(proxy);
+                const dates = Array.isArray(data.dates) ? data.dates : (Array.isArray(data.Dates) ? data.Dates : []);
+                const in2026 = dates.filter(d => yearFromDateStr(d) === 2026);
+                if (in2026.length > 0) {
+                    modalTourContainer.style.display = 'block';
+                    in2026.forEach(d => {
+                        const li = document.createElement('li');
+                        li.textContent = d;
+                        modalTourList.appendChild(li);
+                    });
+                }
+            } catch (e) {
+                if (modalTourContainer) modalTourContainer.style.display = 'none';
+            }
+        }
+
+        modal.classList.add('active');
+    }
+
+    function closeModal() {
+        if (modalAudio) {
+            modalAudio.pause();
+            modalAudio.currentTime = 0;
+        }
+        // nettoie la section tournée pour la prochaine ouverture
+        if (modalTourList) modalTourList.innerHTML = '';
+        const prevEmpty = modalTourContainer?.querySelector('.tour-empty');
+        if (prevEmpty) prevEmpty.remove();
+        if (modalTourContainer) modalTourContainer.style.display = 'none';
+        modal.classList.remove('active');
+    }
+
+    [modalClose, modalCloseBtn].forEach(btn => {
+        if (btn) btn.addEventListener('click', closeModal);
+    });
+
+    modal?.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+    });
+
+    // Arrêter la musique en quittant la page
+    window.addEventListener('beforeunload', () => {
+        if (modalAudio) {
+            modalAudio.pause();
+            modalAudio.currentTime = 0;
+        }
+    });
+
+    cards.forEach(card => {
+        card.addEventListener('click', () => openModal(card));
+    });
+
+    // Associer un genre simple par artiste
+    const genreMap = {
+        'Queen': 'Rock',
+        'SOJA': 'Reggae',
+        'Pink Floyd': 'Rock',
+        'Scorpions': 'Metal',
+        'XXXTentacion': 'Rap',
+        'Mac Miller': 'Rap',
+        'Joyner Lucas': 'Rap',
+        'Kendrick Lamar': 'Hip-Hop',
+        'ACDC': 'Hard Rock',
+        'Pearl Jam': 'Rock',
+        'Katy Perry': 'Pop',
+        'Rihanna': 'Pop',
+        'Genesis': 'Rock',
+        'Phil Collins': 'Pop',
+        'Led Zeppelin': 'Rock',
+        'The Jimi Hendrix Experience': 'Rock',
+        'Bee Gees': 'Pop',
+        'Deep Purple': 'Rock',
+        'Aerosmith': 'Rock',
+        'Dire Straits': 'Rock',
+        'Mamonas Assassinas': 'Rock',
+        'Thirty Seconds to Mars': 'Alternative',
+        'Imagine Dragons': 'Alternative',
+        'Juice Wrld': 'Rap',
+        'Logic': 'Rap',
+        'Alec Benjamin': 'Pop',
+        'Bobby McFerrins': 'Soul',
+        'R3HAB': 'EDM',
+        'Post Malone': 'Hip-Hop',
+        'Travis Scott': 'Hip-Hop',
+        'J. Cole': 'Hip-Hop',
+        'Nickelback': 'Rock',
+        'Mobb Deep': 'Hip-Hop',
+        "Guns N' Roses": 'Hard Rock',
+        'NWA': 'Hip-Hop',
+        'U2': 'Rock',
+        'Arctic Monkeys': 'Indie',
+        'Fall Out Boy': 'Alternative',
+        'Gorillaz': 'Alternative',
+        'Eagles': 'Rock',
+        'Linkin Park': 'Rock',
+        'Red Hot Chili Peppers': 'Rock',
+        'Eminem': 'Rap',
+        'Green Day': 'Rock',
+        'Metallica': 'Metal',
+        'Coldplay': 'Pop',
+        'Maroon 5': 'Pop',
+        'Twenty One Pilots': 'Alternative',
+        'The Rolling Stones': 'Rock',
+        'Muse': 'Rock',
+        'Foo Fighters': 'Rock',
+        'The Chainsmokers': 'EDM',
+        'Nirvana': 'Rock',
+        'Sabaton': 'Metal',
+        'Skillet': 'Metal',
+        'Avicii': 'EDM'
+    };
+
+    cards.forEach(card => {
+        const name = card.dataset.name;
+        const g = genreMap[name] || 'Autre';
+        card.dataset.genre = g;
+    });
+
+    // Appliquer filtres initiaux
+    applyFilters();
+
+    // Charger les tournées 2026 pour chaque artiste via le proxy serveur
+    async function fetchJSON(u){
+        const r = await fetch(u);
+        if (!r.ok) throw new Error('fetch '+u+' failed');
+        return r.json();
+    }
+
+    function yearFromDateStr(s){
+        // essayer YYYY-MM-DD, DD-MM-YYYY, etc.
+        // si on trouve '2026' dans la chaîne on considère que c'est 2026
+        if (!s) return null;
+        if (s.includes('2026')) return 2026;
+        // tenter parse
+        const m = s.match(/(\d{4})/);
+        return m ? parseInt(m[1],10) : null;
+    }
+
+    function formatDateForDisplay(s){
+        // Extraire la date lisible et la ville si disponible
+        // Format: "26 FÉV. 2026. jeu 19:30. Lancaster, PA, États-Unis."
+        if (!s) return s;
+        
+        // Extraire la première partie (date lisible)
+        const parts = s.split('.');
+        if (parts.length > 0) {
+            let dateStr = parts[0].trim();
+            
+            // Si on a plusieurs parties, chercher la localisation
+            if (parts.length > 3) {
+                const location = parts[parts.length - 2].trim();
+                if (location && location.length > 0 && !location.match(/\d{2}:\d{2}/)) {
+                    return dateStr + ' - ' + location;
+                }
+            }
+            return dateStr;
+        }
+        return s;
+    }
+
+    function buildTicketUrl(artist, date){
+        const q = `${artist} billets ${date}`;
+        return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+    }
+
+    // Dates manuelles pour Skillet (tournée 2026)
+    const manualSkilletDates = [
+        '26 FÉV. 2026. jeu 19:30. Lancaster, PA, États-Unis.',
+        '27 FÉV. 2026. ven 19:00. Bensalem, PA, États-Unis.',
+        '28 FÉV. 2026. sam 19:00. Huntington, WV, États-Unis.',
+        '14 MAR. 2026. sam 20:00. Charles Town, WV, États-Unis.',
+        '15 MAR. 2026. dim 20:00. Chattangooda, TN, États-Unis.',
+        '19 MAR. 2026. jeu 19:00. Raleigh, NC, États-Unis.',
+        '20 MAR. 2026. ven 19:00. Myrtle Beach, SC, États-Unis.',
+        '16 AVR. 2026. jeu 19:00. Riverside, CA, États-Unis.',
+        '17 AVR. 2026. ven 19:00. San Diego, CA, États-Unis.',
+        '18 AVR. 2026. sam 19:00. Anaheim, CA, États-Unis.',
+        '28 AVR 2026. mar 19:00. Paris, Zenith, FRANCE'
+    ];
+
+    const manualKatyPerryDates = [
+        '3 JUIL. 2026. ven 21:00. Arras, Main Square festival, FRANCE',
+        '9 JUIL. 2026. jeu 21:00. Savoie, Paloma, FRANCE',
+        '11 JUIL. 2026. sam 21:00. Nîmes, Radiant-Bellevue, FRANCE',
+        '12 JUIL. 2026. dim 21:00. Nacy open air, FRANCE'
+    ];
+
+    const manualColdplaytDates = [
+        '15 JUIL. 2026. mer 21:00. Lyon, Groupama Stadium, FRANCE',
+        '18 JUIL. 2026. sam 21:00. Paris, Stade de France, FRANCE'
+    ];
+
+    (async function loadTours(){
+        for (const card of cards) {
+            try {
+                const concertsUrl = card.dataset.concerts;
+                const section = card.querySelector('.tour-2026');
+                const list = card.querySelector('.tour-list');
+                if (!concertsUrl) { if (section) section.remove(); continue; }
+                const proxy = `/api/proxy?url=${encodeURIComponent(concertsUrl)}`;
+                const data = await fetchJSON(proxy);
+                // Les endpoints /api/dates/:id renvoient { id, dates: ["YYYY-MM-DD", ...] }
+                const dates = Array.isArray(data.dates) ? data.dates : (Array.isArray(data.Dates) ? data.Dates : []);
+                let dates2026 = dates.filter(d => yearFromDateStr(d) === 2026);
+                // Ajouter les dates manuelles de Skillet
+                if (artistName === 'Skillet') {
+                    dates2026 = dates2026.concat(manualSkilletDates);
+                }
+
+                if (!section || !list) continue;
+                if (dates2026.length === 0) {
+                    section.remove();
+                } else {
+                    list.innerHTML = '';
+                    dates2026.forEach(d => {
+                        const li = document.createElement('li');
+                        const a = document.createElement('a');
+                        a.href = buildTicketUrl(artistName, d);
+                        a.target = '_blank';
+                        a.rel = 'noopener noreferrer';
+                        a.textContent = formatDateForDisplay(d);
+                        a.style.color = 'inherit';
+                        a.style.textDecoration = 'none';
+                        li.appendChild(a);
+                        list.appendChild(li);
+                    });
+                }
+            } catch (e) {
+                const section = card.querySelector('.tour-2026');
+                if (section) section.remove();
+            }
+        }
+    })();
+
+    // Charger tous les concerts 2026 dans la section concerts
+    async function loadConcertsSection(){
+        const concertsContainer = document.getElementById('concerts-list');
+        if (!concertsContainer) return;
+        
+        const allConcerts = [];
+        
+        for (const card of cards) {
+            try {
+                const concertsUrl = card.dataset.concerts;
+                const artistName = card.dataset.name || '';
+                if (!concertsUrl) {
+                    console.warn(`${artistName}: pas d'URL de concerts`);
+                    continue;
+                }
+                
+                const proxy = `/api/proxy?url=${encodeURIComponent(concertsUrl)}`;
+                const data = await fetchJSON(proxy);
+                const dates = Array.isArray(data.dates) ? data.dates : (Array.isArray(data.Dates) ? data.Dates : []);
+                const in2026 = dates.filter(d => yearFromDateStr(d) === 2026);
+
+                let dates2026 = [...in2026];
+                if (artistName === 'Skillet') {
+                    dates2026 = dates2026.concat(manualSkilletDates);
+                }
+                if (artistName === 'Katy Perry') {
+                    dates2026 = dates2026.concat(manualKatyPerryDates);
+                }
+                if (artistName === 'Coldplay') {
+                    dates2026 = dates2026.concat(manualColdplaytDates);
+                }
+
+                dates2026.forEach(d => {
+                    allConcerts.push({ artist: artistName, date: d });
+                });
+            } catch (e) {
+                console.error(`Erreur pour ${card.dataset.name}:`, e);
+            }
+        }
+        
+        // Afficher les concerts
+        concertsContainer.innerHTML = '';
+        if (allConcerts.length === 0) {
+            concertsContainer.innerHTML = '<p style="color: rgba(255,255,255,0.7); grid-column: 1 / -1;">Aucun concert en 2026.</p>';
+        } else {
+            allConcerts.forEach(concert => {
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(220, 80%, 55%, 0.3);
+                    border-radius: 12px;
+                    padding: 20px;
+                    text-align: center;
+                    transition: all 0.3s ease;
+                `;
+                const artistEl = document.createElement('div');
+                artistEl.style.cssText = 'font-size: 18px; font-weight: 700; color: #ec4899; margin-bottom: 10px;';
+                artistEl.textContent = concert.artist;
+
+                const genreEl = document.createElement('div');
+                const genre = genreMap[concert.artist] || 'Autre';
+                genreEl.style.cssText = 'font-size: 13px; color: #a78bfa; margin-bottom: 12px; letter-spacing: 0.3px;';
+                genreEl.textContent = genre;
+
+                const dateEl = document.createElement('a');
+                dateEl.href = buildTicketUrl(concert.artist, concert.date);
+                dateEl.target = '_blank';
+                dateEl.rel = 'noopener noreferrer';
+                dateEl.style.cssText = 'font-size: 14px; color: #60a5fa; text-decoration: underline; cursor: pointer; transition: color 0.2s;';
+                dateEl.textContent = formatDateForDisplay(concert.date);
+                dateEl.addEventListener('mouseenter', () => {
+                    dateEl.style.color = '#93c5fd';
+                });
+                dateEl.addEventListener('mouseleave', () => {
+                    dateEl.style.color = '#60a5fa';
+                });
+
+                card.appendChild(artistEl);
+                card.appendChild(genreEl);
+                card.appendChild(dateEl);
+                card.addEventListener('mouseenter', () => {
+                    card.style.background = 'rgba(255, 255, 255, 0.08)';
+                    card.style.borderColor = 'rgba(220, 80%, 55%, 0.6)';
+                    card.style.transform = 'translateY(-4px)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.background = 'rgba(255, 255, 255, 0.05)';
+                    card.style.borderColor = 'rgba(220, 80%, 55%, 0.3)';
+                    card.style.transform = 'translateY(0)';
+                });
+                concertsContainer.appendChild(card);
+            });
+        }
+    }
+
+    // Peupler la section Genres
+    (function loadGenres(){
+        const genresList = document.getElementById('genres-list');
+        if (!genresList) return;
+        const genres = [
+            'Tous','Rock','Metal','Pop','Hip-Hop','Rap','Reggae','EDM','Alternative','Hard Rock','Indie','Soul'
+        ];
+        genresList.innerHTML = '';
+        genres.forEach(g => {
+            const chip = document.createElement('div');
+            chip.className = 'genre-chip';
+            chip.textContent = g;
+            if (g === 'Tous') chip.classList.add('active');
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                currentGenre = g;
+                applyFilters();
+            });
+            genresList.appendChild(chip);
+        });
+    })();
+
+    // Charger les concerts après que genreMap soit défini
+    loadConcertsSection();
+</script>
+
+</body>
+</html>

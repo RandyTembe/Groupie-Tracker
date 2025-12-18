@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte du site</title>
+
+    <!-- Leaflet CSS -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            height: 100vh;
+            width: 100vw;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // Initialisation carte centrée sur Europe
+    const map = L.map('map').setView([48.8566, 2.3522], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Simple cache pour la géocodage
+    const geoCache = new Map();
+
+    async function geocode(place) {
+        const key = place.toLowerCase();
+        if (geoCache.has(key)) return geoCache.get(key);
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json&limit=1`;
+        const resp = await fetch(url, { headers: { 'Accept-Language': 'fr' } });
+        const data = await resp.json();
+        if (Array.isArray(data) && data.length) {
+            const latlng = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+            geoCache.set(key, latlng);
+            return latlng;
+        }
+        return null;
+    }
+
+    // Charger artistes et lieux
+    Promise.all([
+        fetch('/api/artists').then(r => r.json()),
+        fetch('/api/locations').then(r => r.json())
+    ]).then(async ([artists, locations]) => {
+        // Construire map id -> nom
+        const byId = new Map(artists.map(a => [a.id || a.ID, a.name || a.Name]));
+
+        // La structure de locations.json: { index: [{id, locations: [...]}, ...] }
+        const items = (locations && locations.index) ? locations.index : [];
+        for (const item of items) {
+            const artistName = byId.get(item.id) || `Artiste #${item.id}`;
+            for (const locRaw of item.locations || []) {
+                // transformer "paris-france" -> "paris, france"
+                const normalized = String(locRaw).replace(/_/g, ' ').replace('-', ', ');
+                try {
+                    const latlng = await geocode(normalized);
+                    if (!latlng) continue;
+                    const marker = L.marker(latlng).addTo(map);
+                    marker.bindPopup(`<b>${artistName}</b><br>${normalized}`);
+                } catch (e) {
+                    console.warn('Geocode failed for', normalized, e);
+                }
+            }
+        }
+    }).catch(err => {
+        console.error('Erreur chargement données:', err);
+    });
+</script>
+
+</body>
+</html>
