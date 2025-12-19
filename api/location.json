@@ -649,6 +649,32 @@
       "dates": "https://groupietrackers.herokuapp.com/api/dates/52"
     },
     {
+      "id": 53,
+      "locations": [
+        "seattle-usa",
+        "los_angeles-usa",
+        "new_york-usa",
+        "london-uk",
+        "tokyo-japan",
+        "sydney-australia",
+        "berlin-germany",
+        "paris-france"
+      ],
+      "dates": "https://groupietrackers.herokuapp.com/api/dates/53"
+    },
+    {
+      "id": 54,
+      "locations": [
+        "stockholm-sweden",
+        "warsaw-poland",
+        "budapest-hungary",
+        "prague-czechia",
+        "berlin-germany",
+        "vienna-austria"
+      ],
+      "dates": "https://groupietrackers.herokuapp.com/api/dates/54"
+    },
+    {
       "id": 55,
       "locations": [
         "san_jose-costa_rica",

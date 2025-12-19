@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Groupie Tracker - Trouve tes artistes favoris</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous" />
     <style>
         * {
             margin: 0;
@@ -90,6 +91,27 @@
             transform: translateY(-2px);
         }
 
+        .btn-map {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            padding: 8px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            text-decoration: none;
+            transition: transform 0.2s, border-color 0.2s, background 0.2s;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .btn-map:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
         main {
             max-width: 1400px;
             margin: 0 auto;
@@ -124,7 +146,7 @@
         .genres-inline .genres-title {
             font-family: var(--font-display);
             letter-spacing: 0.5px;
-            font-size: 16px;nn
+            font-size: 16px;
             color: hsl(var(--foreground));
         }
 
@@ -283,10 +305,10 @@
             inset: 0;
             background: rgba(0, 0, 0, 0.75);
             display: none;
-            align-items: center;
-            justify-content: center;
+            align-items: stretch;
+            justify-content: stretch;
             z-index: 1000;
-            padding: 20px;
+            padding: 0;
         }
 
         .modal-backdrop.active {
@@ -296,12 +318,16 @@
         .modal {
             background: rgba(26, 32, 44, 0.95);
             border: 1px solid rgba(236, 72, 153, 0.3);
-            border-radius: 14px;
+            border-radius: 0;
             padding: 24px;
-            max-width: 900px;
             width: 100%;
+            height: 100%;
+            max-width: none;
+            max-height: none;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
         .modal-close {
@@ -348,32 +374,29 @@
         }
 
         .modal-body {
+            flex: 1;
             display: grid;
-            grid-template-columns: 1.4fr 1fr;
+            grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
             gap: 18px;
+            min-height: 0;
         }
 
         .modal-map {
-            background: radial-gradient(circle at 20% 20%, rgba(236,72,153,0.15), rgba(0,0,0,0.7)),
-                        linear-gradient(135deg, rgba(236,72,153,0.12), rgba(96,165,250,0.12));
-            border: 1px solid rgba(236, 72, 153, 0.3);
-            border-radius: 12px;
-            padding: 14px;
             position: relative;
-            min-height: 220px;
+            min-height: 100%;
+            border-radius: 12px;
             overflow: hidden;
+            background: #000;
         }
 
-        .map-pin {
+        #leafletMap {
+            width: 100%;
+            height: 100%;
             position: absolute;
-            top: 35%;
-            left: 55%;
-            transform: translate(-50%, -50%);
-            width: 14px;
-            height: 14px;
-            background: #ec4899;
-            border-radius: 50%;
-            box-shadow: 0 0 18px rgba(236, 72, 153, 0.7);
+            top: 0;
+            left: 0;
+            z-index: 1;
+            border-radius: 12px;
         }
 
         .map-legend {
@@ -381,12 +404,15 @@
             bottom: 10px;
             left: 14px;
             right: 14px;
-            background: rgba(0,0,0,0.35);
+            background: rgba(0,0,0,0.8);
             padding: 10px 12px;
             border-radius: 8px;
             font-size: 12px;
-            color: rgba(255,255,255,0.8);
-            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.9);
+            border: 1px solid rgba(236, 72, 153, 0.5);
+            z-index: 10;
+            max-height: 150px;
+            overflow-y: auto;
         }
 
         .modal-excerpt {
@@ -398,6 +424,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            overflow-y: auto;
         }
 
         .excerpt-title {
@@ -493,7 +520,7 @@
 
         <div class="grid">
             {{range .}}
-            <div class="artist-card" data-id="{{.ID}}" data-name="{{.Name}}" data-locations="{{.Locations}}" data-firstalbum="{{.FirstAlbum}}" data-musique="{{.Musique}}" data-concerts="{{.ConcertDates}}">
+            <div class="artist-card" data-id="{{.ID}}" data-name="{{.Name}}" data-locations="{{.Locations}}" data-firstalbum="{{.FirstAlbum}}" data-musique="{{.Musique}}" data-concerts="{{.ConcertDates}}" data-relations="{{.Relations}}">
                 <img src="{{.Image}}" alt="{{.Name}}" class="artist-image">
                 <div class="artist-name">{{.Name}}</div>
                 
@@ -553,7 +580,7 @@
         </div>
         <div class="modal-body">
             <div class="modal-map">
-                <div class="map-pin"></div>
+                <div id="leafletMap"></div>
                 <div class="map-legend" id="modalLocations">Localisations en cours de chargement...</div>
             </div>
             <div class="modal-excerpt">
@@ -573,6 +600,7 @@
     </div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
 <script>
     const searchBar = document.getElementById('search-bar');
     const cards = document.querySelectorAll('.artist-card');
@@ -608,6 +636,14 @@
     const modalTourContainer = document.getElementById('modalTourContainer');
     const modalTourList = document.getElementById('modalTourList');
 
+    // Origine connue par artiste (ville-pays sous forme de slug)
+    const originMap = {
+        'Sabaton': 'falun-sweden',
+        'Skillet': 'memphis_tennessee-usa',
+        'Avicii': 'stockholm-sweden',
+        'Nirvana': 'aberdeen-washington-usa'
+    };
+
     function isSoundCloudUrl(u){
         if (!u) return false;
         return u.includes('soundcloud.com') || u.includes('w.soundcloud.com');
@@ -621,12 +657,83 @@
         const firstAlbum = card.dataset.firstalbum || 'Album inconnu';
         const musique = card.dataset.musique || '';
         const concertsUrl = card.dataset.concerts || '';
+        const relationsUrl = card.dataset.relations || '';
 
         modalImage.src = img;
         modalImage.alt = name;
         modalTitle.textContent = name;
         modalSub.textContent = `Création / 1er album : ${firstAlbum}`;
-        modalLocations.textContent = `Lieux : ${locations}`;
+        // Affiche le modal immédiatement pour ne pas bloquer sur les requêtes réseau
+        modal.classList.add('active');
+        modalLocations.textContent = 'Lieux : chargement...';
+        // S'assure que Leaflet recalcule sa taille quand le modal s'affiche
+        initLeaflet();
+        setTimeout(() => {
+            try { leafletMap?.invalidateSize(); } catch(e) {}
+        }, 120);
+        // Préparer affichage des lieux (map + légende)
+        let nicePlaces = '';
+        let locationsToPlot = '';
+        
+        if (locations && locations.startsWith('http')) {
+            // Locations est une URL, chercher les vrais lieux
+            try {
+                console.log('Fetching locations from:', locations);
+                const locData = await fetchJSON(`/api/proxy?url=${encodeURIComponent(locations)}`);
+                console.log('Location data:', locData);
+                const locList = locData.locations || locData.Locations || [];
+                if (Array.isArray(locList) && locList.length > 0) {
+                    const first = locList[0];
+                    locationsToPlot = JSON.stringify(locList);
+                    nicePlaces = first ? slugToPlace(first) : '';
+                }
+            } catch (e) {
+                console.error('Error fetching locations:', e);
+                nicePlaces = '';
+            }
+        } else {
+            const parsed = parseLocationsAttr(locations);
+            const first = parsed[0];
+            if (first) {
+                locationsToPlot = JSON.stringify(parsed);
+                nicePlaces = slugToPlace(first);
+            }
+        }
+
+        // Fallback: utiliser relations pour extraire les lieux s'il n'y en a pas
+        if ((!locationsToPlot || locationsToPlot === '[]') && relationsUrl && relationsUrl.startsWith('http')) {
+            try {
+                console.log('Fetching relations from:', relationsUrl);
+                const relData = await fetchJSON(`/api/proxy?url=${encodeURIComponent(relationsUrl)}`);
+                const dl = relData.datesLocations || relData.DatesLocations || {};
+                const keys = Object.keys(dl);
+                if (keys.length > 0) {
+                    // choisir le lieu le plus fréquent
+                    const entries = Object.entries(dl).map(([slug, dates]) => ({ slug, count: Array.isArray(dates) ? dates.length : 0 }));
+                    entries.sort((a,b) => b.count - a.count);
+                    const best = entries[0].slug;
+                    locationsToPlot = JSON.stringify([best]);
+                    nicePlaces = slugToPlace(best);
+                }
+            } catch (e) {
+                console.error('Error fetching relations:', e);
+            }
+        }
+
+        // Priorité à l'origine connue si disponible
+        const originSlug = originMap[name];
+        if (originSlug) {
+            locationsToPlot = JSON.stringify([originSlug]);
+            nicePlaces = slugToPlace(originSlug);
+        }
+        
+        modalLocations.textContent = nicePlaces ? `Lieux : ${nicePlaces}` : 'Lieux indisponibles';
+        
+        // Tracer les lieux sur la carte
+        if (locationsToPlot) {
+            plotLocationsFromAttr(locationsToPlot, name).catch(err => console.error(err));
+        }
+        
         // Reset audio/iframe state
         modalAudio.pause();
         modalAudio.currentTime = 0;
@@ -679,7 +786,6 @@
             }
         }
 
-        modal.classList.add('active');
     }
 
     function closeModal() {
@@ -713,10 +819,6 @@
             modalAudio.pause();
             modalAudio.currentTime = 0;
         }
-    });
-
-    cards.forEach(card => {
-        card.addEventListener('click', () => openModal(card));
     });
 
     // Associer un genre simple par artiste
@@ -785,8 +887,137 @@
         card.dataset.genre = g;
     });
 
+    // Attacher les events click aux cartes artistes APRÈS genreMap
+    cards.forEach(card => {
+        card.addEventListener('click', () => openModal(card));
+    });
+
     // Appliquer filtres initiaux
     applyFilters();
+
+    // Leaflet + géocodage
+    let leafletMap = null;
+    let leafletGroup = null;
+    const geocodeCache = {};
+    const defaultMarkerIcon = new L.Icon({
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
+    function initLeaflet(){
+        if (!leafletMap) {
+            leafletMap = L.map('leafletMap', {
+                zoomControl: true,
+                worldCopyJump: false,
+                maxBounds: [[-85, -180], [85, 180]],
+                maxBoundsViscosity: 1,
+                minZoom: 2,
+                maxZoom: 10
+            });
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                noWrap: true
+            }).addTo(leafletMap);
+            leafletGroup = L.featureGroup().addTo(leafletMap);
+            leafletMap.setView([20, 0], 2);
+        }
+    }
+
+    function slugToPlace(slug){
+        if (!slug) return '';
+        const parts = String(slug).split('-');
+        const city = (parts[0] || '').replace(/_/g, ' ');
+        let country = (parts[1] || '').replace(/_/g, ' ');
+        const cap = (s) => s.replace(/\b\w/g, (m) => m.toUpperCase());
+        const countryFix = {
+            'usa': 'United States',
+            'uk': 'United Kingdom',
+            'uae': 'United Arab Emirates',
+            'south korea': 'South Korea',
+            'north korea': 'North Korea'
+        };
+        const norm = country.toLowerCase();
+        if (countryFix[norm]) country = countryFix[norm];
+        return `${cap(city)}${country ? ', ' + country : ''}`.trim();
+    }
+
+    function parseLocationsAttr(attr){
+        if (!attr) return [];
+        try {
+            const j = JSON.parse(attr);
+            if (Array.isArray(j)) return j;
+        } catch(e) {}
+        let s = String(attr).trim();
+        s = s.replace(/^\[|\]$/g, '').trim();
+        if (!s) return [];
+        const items = s.split(/[\s,]+/).filter(Boolean);
+        return items;
+    }
+
+    async function geocode(place){
+        if (!place || place.trim() === '') return null;
+        if (geocodeCache[place]) {
+            console.log(`Cache hit for ${place}`);
+            return geocodeCache[place];
+        }
+        try {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(place)}&limit=1`;
+            console.log(`Geocoding: ${url}`);
+            const r = await fetch(url, { headers: { 'Accept': 'application/json' }});
+            if (!r.ok) {
+                console.warn(`Geocode HTTP error for ${place}:`, r.status);
+                return null;
+            }
+            const j = await r.json();
+            console.log(`Geocode response for ${place}:`, j);
+            if (Array.isArray(j) && j.length > 0) {
+                const res = { lat: parseFloat(j[0].lat), lon: parseFloat(j[0].lon) };
+                geocodeCache[place] = res;
+                console.log(`Geocode success for ${place}:`, res);
+                return res;
+            }
+            console.warn(`No geocode result for ${place}`);
+        } catch(e) {
+            console.error('Geocode error for', place, e);
+        }
+        return null;
+    }
+
+    async function plotLocationsFromAttr(attr, artistName){
+        try {
+            initLeaflet();
+            if (leafletGroup) leafletGroup.clearLayers();
+            const slugs = parseLocationsAttr(attr);
+            if (!slugs.length) {
+                console.warn('No location to plot');
+                leafletMap.setView([20, 0], 2);
+                return;
+            }
+            for (const slug of slugs) {
+                const place = slugToPlace(slug);
+                console.log('Place to geocode:', place);
+                const c = await geocode(place);
+                if (!c) {
+                    console.warn('No geocode result for', place);
+                    continue;
+                }
+                const m = L.marker([c.lat, c.lon], { icon: defaultMarkerIcon }).bindPopup(`${artistName} — ${place}`);
+                leafletGroup.addLayer(m);
+                leafletMap.setView([c.lat, c.lon], 8);
+                console.log(`Added marker for ${place}`);
+                return; // stop after first successful marker
+            }
+            // aucune position trouvée
+            leafletMap.setView([20, 0], 2);
+        } catch(e) {
+            console.error('plotLocationsFromAttr error:', e);
+        }
+    }
 
     // Charger les tournées 2026 pour chaque artiste via le proxy serveur
     async function fetchJSON(u){
@@ -862,6 +1093,7 @@
     (async function loadTours(){
         for (const card of cards) {
             try {
+                const artistName = card.dataset.name || '';
                 const concertsUrl = card.dataset.concerts;
                 const section = card.querySelector('.tour-2026');
                 const list = card.querySelector('.tour-list');
