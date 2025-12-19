@@ -101,7 +101,8 @@ func NewServer(addr string) *Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", homeHandler)
 	mux.HandleFunc("/groupes", groupesHandler)
-	mux.HandleFunc("/historique", historiqueHandler)
+	mux.HandleFunc("/map", mapPageHandler)
+	mux.HandleFunc("/api/locations", locationsHandler)
 	// Removed artist detail routes; we keep only modal on listing page
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(".", "static")))))
 	mux.HandleFunc("/api", apiInfoHandler)
@@ -134,6 +135,28 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, tmplPath)
 }
 
+// Map page
+func mapPageHandler(w http.ResponseWriter, r *http.Request) {
+	tmplPath := filepath.Join("templates", "map.html")
+	http.ServeFile(w, r, tmplPath)
+}
+
+// locationsHandler returns the local locations.json content
+func locationsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSONError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	p := filepath.Join(".", "api", "locations.json")
+	b, err := os.ReadFile(p)
+	if err != nil {
+		http.Error(w, "Impossible de lire api/locations.json", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	_, _ = w.Write(b)
+}
+
 func groupesHandler(w http.ResponseWriter, r *http.Request) {
 	data, err := os.ReadFile(filepath.Join(".", "api", "artists.json"))
 	if err != nil {
@@ -153,11 +176,6 @@ func groupesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = tmpl.Execute(w, artists)
-}
-
-func historiqueHandler(w http.ResponseWriter, r *http.Request) {
-	tmplPath := filepath.Join("templates", "historique.html")
-	http.ServeFile(w, r, tmplPath)
 }
 
 func artistsCollectionHandler(w http.ResponseWriter, r *http.Request) {
