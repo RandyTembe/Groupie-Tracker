@@ -600,6 +600,18 @@ main {
     color: #93c5fd;
 }
 
+.modal-pub {
+    margin-top: 16px;
+    text-align: center;
+}
+
+.pub-image {
+    max-width: 95%;
+    height: 600px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 @media (max-width: 768px) {
     .grid {
         grid-template-columns: repeat(2, 1fr);
