@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Historique d'achat - Groupie Tracker</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            --background: 220 25% 6%;
+            --foreground: 210 40% 98%;
+            --primary: 220 80% 55%;
+            --gradient-dark: linear-gradient(180deg, hsl(220, 20%, 8%) 0%, hsl(220, 20%, 4%) 100%);
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-family: var(--font-body);
+            background: var(--gradient-dark);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(220, 100%, 100%, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            font-family: var(--font-display);
+            color: hsl(var(--primary));
+            letter-spacing: 2px;
+        }
+
+        nav {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        nav a {
+            color: hsl(var(--foreground));
+            text-decoration: none;
+            font-size: 15px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        nav a:hover {
+            opacity: 1;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .btn-retour {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 30px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-retour:hover {
+            border-color: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+
+        .empty-state {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(220, 80%, 55%, 0.3);
+            border-radius: 12px;
+            padding: 60px 40px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .empty-state p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state a {
+            background: linear-gradient(135deg, #ec4899, #7c3aed);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+
+        .empty-state a:hover {
+            transform: translateY(-2px);
+        }
+
+        .ticket-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(220, 80%, 55%, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .ticket-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(220, 80%, 55%, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .ticket-info h3 {
+            font-size: 18px;
+            color: #ec4899;
+            margin-bottom: 5px;
+        }
+
+        .ticket-info p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .ticket-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #60a5fa;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo"><span class="logo-icon"></span> GROUPIE TRACKER </div>
+    <nav>
+        <a href="/">Accueil</a>
+    </nav>
+</header>
+
+<main>
+    <a href="/" class="btn-retour">← Retour</a>
+    <h1>Historique d'achat</h1>
+    <div class="empty-state">
+        <p>Aucun billet acheté pour le moment.</p>
+        <a href="/#concerts">Découvrir les concerts</a>
+    </div>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,630 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+:root {
+    --background: 220 25% 6%;
+    --foreground: 210 40% 98%;
+    --primary: 220 80% 55%;
+    --gradient-dark: linear-gradient(180deg, hsl(220, 20%, 8%) 0%, hsl(220, 20%, 4%) 100%);
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'Inter', sans-serif;
+}
+
+body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-body);
+    background: var(--gradient-dark);
+    min-height: 100vh;
+    padding: 40px 20px;
+}
+
+header {
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(220, 100%, 100%, 0.1);
+    margin-bottom: 40px;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: bold;
+    font-family: var(--font-display);
+    color: hsl(var(--primary));
+    letter-spacing: 2px;
+}
+
+.logo-icon {
+    margin-right: 10px;
+}
+
+nav {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+nav a {
+    color: hsl(var(--foreground));
+    text-decoration: none;
+    font-size: 15px;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+
+nav a:hover {
+    opacity: 1;
+}
+
+.btn-billets {
+    background: hsl(var(--primary));
+    color: white;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: transform 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-billets:hover {
+    transform: translateY(-2px);
+}
+
+.btn-map {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    padding: 8px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    text-decoration: none;
+    transition: transform 0.2s, border-color 0.2s, background 0.2s;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.btn-map:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+main {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.search-bar {
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.search-bar input {
+    width: 100%;
+    max-width: 360px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: hsl(var(--foreground));
+    font-size: 14px;
+}
+
+.search-bar input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.genres-inline {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.genres-inline .genres-title {
+    font-family: var(--font-display);
+    letter-spacing: 0.5px;
+    font-size: 16px;
+    color: hsl(var(--foreground));
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    padding: 20px;
+    overflow: visible;
+}
+
+.artist-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(220, 80%, 55%, 0.3);
+    border-radius: 12px;
+    padding: 30px 20px;
+    overflow: visible;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.artist-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(220, 80%, 55%, 0.6);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.badge-2026 {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: linear-gradient(135deg, #ec4899, #7c3aed);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    box-shadow: 0 6px 16px rgba(236, 72, 153, 0.5);
+    z-index: 100;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.artist-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.artist-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    font-family: var(--font-body);
+    margin: 0;
+    position: relative;
+    padding-top: 25px;
+    margin-bottom: 15px;
+}
+
+.artist-name::before {
+    content: '●';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ec4899;
+    font-size: 20px;
+}
+
+.artist-details {
+    text-align: left;
+    font-size: 13px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.detail-item {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #48ecd6;
+    min-width: 80px;
+    text-shadow: 0 0 2px rgba(236, 72, 153, 0.3);
+}
+
+.detail-value {
+    flex: 1;
+    color: #60a5fa;
+    text-shadow: 0 0 3px rgba(96, 165, 250, 0.4);
+}
+
+.members-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 5px;
+}
+
+.member-tag {
+    background: rgba(236, 72, 153, 0.1);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    border: 1px solid rgba(72, 230, 236, 0.5);
+    color: #ffffff;
+    text-shadow: 0 0 3px rgba(72, 229, 229, 0.685);
+    box-shadow: 0 0 5px rgba(72, 219, 236, 0.2);
+    transition: all 0.3s ease;
+}
+
+.member-tag:hover {
+    box-shadow: 0 0 10px rgba(72, 236, 219, 0.4);
+    transform: scale(1.05);
+}
+
+.divider {
+    height: 1px;
+    background: rgba(72, 225, 236, 0.3);
+    margin: 15px 0;
+    box-shadow: 0 0 5px rgba(72, 222, 236, 0.2);
+}
+
+.tour-2026 {
+    margin-top: 14px;
+    text-align: left;
+}
+
+.tour-title {
+    font-weight: 700;
+    color: #60a5fa;
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+}
+
+.tour-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 6px;
+}
+
+.tour-list li {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.tour-empty {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+}
+
+.genres-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.genre-chip {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(220, 80%, 55%, 0.4);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+}
+
+.genre-chip:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+}
+
+.genre-chip.active {
+    background: linear-gradient(135deg, #ec4899, #7c3aed);
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 6px 16px rgba(236, 72, 153, 0.45);
+}
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: none;
+    align-items: stretch;
+    justify-content: stretch;
+    z-index: 1000;
+    padding: 0;
+}
+
+.modal-backdrop.active {
+    display: flex;
+}
+
+.modal {
+    background: rgba(26, 32, 44, 0.95);
+    border: 1px solid rgba(236, 72, 153, 0.3);
+    border-radius: 0;
+    padding: 24px;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    font-size: 18px;
+    display: grid;
+    place-items: center;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.modal-header {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.modal-header img {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.modal-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    letter-spacing: 1px;
+}
+
+.modal-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 18px;
+    min-height: 0;
+}
+
+.modal-map {
+    position: relative;
+    min-height: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+
+#leafletMap {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    border-radius: 12px;
+}
+
+.map-legend {
+    position: absolute;
+    bottom: 10px;
+    left: 14px;
+    right: 14px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(236, 72, 153, 0.5);
+    z-index: 10;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.modal-excerpt {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(96, 165, 250, 0.25);
+    border-radius: 12px;
+    padding: 14px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+}
+
+.excerpt-title {
+    font-weight: 700;
+    color: #60a5fa;
+    letter-spacing: 0.5px;
+}
+
+.excerpt-text {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 13px;
+}
+
+.tour-2026-modal {
+    margin-top: 8px;
+}
+
+.tour-2026-modal .tour-title {
+    font-weight: 700;
+    color: #60a5fa;
+    margin-bottom: 6px;
+}
+
+.tour-2026-modal .tour-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 6px;
+}
+
+.tour-2026-modal .tour-list li {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.tour-2026-modal .tour-empty {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+}
+
+.modal-actions {
+    margin-top: 14px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #ec4899, #7c3aed);
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 8px 20px rgba(236, 72, 153, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(236, 72, 153, 0.45);
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+#concerts-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.concert-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(220, 80%, 55%, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.concert-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(220, 80%, 55%, 0.6);
+    transform: translateY(-4px);
+}
+
+.concert-artist {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ec4899;
+    margin-bottom: 10px;
+}
+
+.concert-genre {
+    font-size: 13px;
+    color: #a78bfa;
+    margin-bottom: 12px;
+    letter-spacing: 0.3px;
+}
+
+.concert-date {
+    font-size: 14px;
+    color: #60a5fa;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.concert-date:hover {
+    color: #93c5fd;
+}
+
+.modal-pub {
+    margin-top: 16px;
+    text-align: center;
+}
+
+.pub-image {
+    max-width: 95%;
+    height: 10px;
+    border-radius: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    header {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    nav {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+}
