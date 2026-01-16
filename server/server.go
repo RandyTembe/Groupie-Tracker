@@ -131,9 +131,8 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	// Servir la page d'accueil
-	tmplPath := filepath.Join("templates", "home.html")
-	http.ServeFile(w, r, tmplPath)
+	// Rediriger vers /groupes
+	http.Redirect(w, r, "/groupes", http.StatusMovedPermanently)
 }
 
 // Map page
@@ -142,6 +141,7 @@ func mapPageHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, tmplPath)
 }
 
+// Historique page (My tickets)
 func historiqueHandler(w http.ResponseWriter, r *http.Request) {
 	tmplPath := filepath.Join("templates", "historique.html")
 	http.ServeFile(w, r, tmplPath)

@@ -49,9 +49,6 @@ const CONCERT_DATES = {
     ]
 };
 
-// Image de publicité à afficher dans la modale (remplace par ton URL/chemin)
-const AD_IMAGE_URL = '/static/img/pub.png'; // ou une URL externe
-
 // Leaflet
 let leafletMap = null;
 let leafletGroup = null;
@@ -107,85 +104,19 @@ function buildTicketUrl(artist, date) {
 function slugToPlace(slug) {
     if (!slug) return '';
     const parts = String(slug).split('-');
-    let city = (parts[0] || '').replace(/_/g, ' ');
+    const city = (parts[0] || '').replace(/_/g, ' ');
     let country = (parts[1] || '').replace(/_/g, ' ');
     const cap = (s) => s.replace(/\b\w/g, (m) => m.toUpperCase());
-    
-    const cityFix = {
-        'london': 'Londres',
-        'moscow': 'Moscou',
-        'athens': 'Athènes',
-        'rome': 'Rome',
-        'lisbon': 'Lisbonne',
-        'brussels': 'Bruxelles',
-        'vienna': 'Vienne',
-        'prague': 'Prague',
-        'copenhagen': 'Copenhague',
-        'stockholm': 'Stockholm',
-        'geneva': 'Genève',
-        'zurich': 'Zurich',
-        'munich': 'Munich',
-        'cologne': 'Cologne',
-        'nuremberg': 'Nuremberg',
-        'venice': 'Venise',
-        'florence': 'Florence',
-        'naples': 'Naples',
-        'turin': 'Turin',
-        'milan': 'Milan',
-        'warsaw': 'Varsovie',
-        'cairo': 'Le Caire',
-        'beijing': 'Pékin',
-        'new york': 'New York',
-        'los angeles': 'Los Angeles',
-        'memphis': 'Memphis',
-        'new orleans': 'La Nouvelle-Orléans'
-    };
-    
     const countryFix = {
-        'usa': 'États-Unis',
-        'uk': 'Royaume-Uni',
-        'uae': 'Émirats Arabes Unis',
-        'south korea': 'Corée du Sud',
-        'north korea': 'Corée du Nord',
-        'united states': 'États-Unis',
-        'united kingdom': 'Royaume-Uni',
-        'sweden': 'Suède',
-        'france': 'France',
-        'germany': 'Allemagne',
-        'spain': 'Espagne',
-        'italy': 'Italie',
-        'portugal': 'Portugal',
-        'belgium': 'Belgique',
-        'netherlands': 'Pays-Bas',
-        'switzerland': 'Suisse',
-        'austria': 'Autriche',
-        'poland': 'Pologne',
-        'russia': 'Russie',
-        'japan': 'Japon',
-        'china': 'Chine',
-        'brazil': 'Brésil',
-        'mexico': 'Mexique',
-        'canada': 'Canada',
-        'australia': 'Australie',
-        'new zealand': 'Nouvelle-Zélande',
-        'india': 'Inde',
-        'norway': 'Norvège',
-        'denmark': 'Danemark',
-        'finland': 'Finlande',
-        'greece': 'Grèce',
-        'ireland': 'Irlande',
-        'czech republic': 'République Tchèque',
-        'hungary': 'Hongrie',
-        'romania': 'Roumanie'
+        'usa': 'United States',
+        'uk': 'United Kingdom',
+        'uae': 'United Arab Emirates',
+        'south korea': 'South Korea',
+        'north korea': 'North Korea'
     };
-    
-    const cityNorm = city.toLowerCase();
-    if (cityFix[cityNorm]) city = cityFix[cityNorm];
-    
     const norm = country.toLowerCase();
     if (countryFix[norm]) country = countryFix[norm];
-    
-    return `${cityFix[cityNorm] ? city : cap(city)}${country ? ', ' + country : ''}`.trim();
+    return `${cap(city)}${country ? ', ' + country : ''}`.trim();
 }
 
 function parseLocationsAttr(attr) {
@@ -207,31 +138,6 @@ async function fetchJSON(u) {
     return r.json();
 }
 
-// Shared helpers
-function getDatesFromResponse(data) {
-    const d = Array.isArray(data?.dates) ? data.dates : (Array.isArray(data?.Dates) ? data.Dates : []);
-    return Array.isArray(d) ? d : [];
-}
-
-function enrichDates2026(artistName, dates) {
-    let in2026 = (dates || []).filter(d => yearFromDateStr(d) === 2026);
-    if (CONCERT_DATES[artistName]) {
-        in2026 = in2026.concat(CONCERT_DATES[artistName]);
-    }
-    return in2026;
-}
-
-function makeTicketLink(artistName, dateText) {
-    const a = document.createElement('a');
-    a.href = buildTicketUrl(artistName, dateText);
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    a.textContent = formatDateForDisplay(dateText);
-    a.style.color = 'inherit';
-    a.style.textDecoration = 'none';
-    return a;
-}
-
 // Leaflet functions
 function initLeaflet() {
     if (!leafletMap) {
@@ -245,8 +151,7 @@ function initLeaflet() {
         });
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
-            noWrap: true,
-            maxZoom: 19
+            noWrap: true
         }).addTo(leafletMap);
         leafletGroup = L.featureGroup().addTo(leafletMap);
         leafletMap.setView([20, 0], 2);
@@ -322,8 +227,6 @@ async function openModal(card) {
     const modalSoundcloud = document.getElementById('modalSoundcloud');
     const modalTourContainer = document.getElementById('modalTourContainer');
     const modalTourList = document.getElementById('modalTourList');
-    const modalPub = document.getElementById('modalPub');
-    const modalPubImage = document.getElementById('modalPubImage');
 
     const id = card.dataset.id;
     const name = card.dataset.name;
@@ -404,9 +307,6 @@ async function openModal(card) {
     modalAudio.style.display = 'none';
     modalSoundcloud.innerHTML = '';
     modalSoundcloud.style.display = 'none';
-    if (modalPub) {
-        modalPub.style.display = 'none';
-    }
 
     if (musique.trim() !== '') {
         if (isSoundCloudUrl(musique)) {
@@ -430,19 +330,17 @@ async function openModal(card) {
         modalExcerpt.textContent = `Pas d'extrait audio disponible. (Single lié à : ${firstAlbum})`;
     }
 
-    if (AD_IMAGE_URL && modalPub && modalPubImage) {
-        modalPubImage.src = AD_IMAGE_URL;
-        modalPub.style.display = 'block';
-    }
-
     if (modalTourList) modalTourList.innerHTML = '';
     if (modalTourContainer) modalTourContainer.style.display = 'none';
     if (concertsUrl) {
         try {
             const proxy = `/api/proxy?url=${encodeURIComponent(concertsUrl)}`;
             const data = await fetchJSON(proxy);
-            const dates = getDatesFromResponse(data);
-            const in2026 = enrichDates2026(name, dates);
+            const dates = Array.isArray(data.dates) ? data.dates : (Array.isArray(data.Dates) ? data.Dates : []);
+            let in2026 = dates.filter(d => yearFromDateStr(d) === 2026);
+            if (CONCERT_DATES[name]) {
+                in2026 = in2026.concat(CONCERT_DATES[name]);
+            }
             if (in2026.length > 0) {
                 modalTourContainer.style.display = 'block';
                 in2026.forEach(d => {
@@ -486,8 +384,11 @@ async function loadToursOnCards() {
             if (!concertsUrl) { if (section) section.remove(); continue; }
             const proxy = `/api/proxy?url=${encodeURIComponent(concertsUrl)}`;
             const data = await fetchJSON(proxy);
-            const dates = getDatesFromResponse(data);
-            const dates2026 = enrichDates2026(artistName, dates);
+            const dates = Array.isArray(data.dates) ? data.dates : (Array.isArray(data.Dates) ? data.Dates : []);
+            let dates2026 = dates.filter(d => yearFromDateStr(d) === 2026);
+            if (CONCERT_DATES[artistName]) {
+                dates2026 = dates2026.concat(CONCERT_DATES[artistName]);
+            }
             if (!section || !list) continue;
             if (dates2026.length === 0) {
                 section.remove();
@@ -495,7 +396,14 @@ async function loadToursOnCards() {
                 list.innerHTML = '';
                 dates2026.forEach(d => {
                     const li = document.createElement('li');
-                    li.appendChild(makeTicketLink(artistName, d));
+                    const a = document.createElement('a');
+                    a.href = buildTicketUrl(artistName, d);
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    a.textContent = formatDateForDisplay(d);
+                    a.style.color = 'inherit';
+                    a.style.textDecoration = 'none';
+                    li.appendChild(a);
                     list.appendChild(li);
                 });
             }
@@ -522,8 +430,12 @@ async function loadConcertsSection() {
 
             const proxy = `/api/proxy?url=${encodeURIComponent(concertsUrl)}`;
             const data = await fetchJSON(proxy);
-            const dates = getDatesFromResponse(data);
-            const in2026 = enrichDates2026(artistName, dates);
+            const dates = Array.isArray(data.dates) ? data.dates : (Array.isArray(data.Dates) ? data.Dates : []);
+            let in2026 = dates.filter(d => yearFromDateStr(d) === 2026);
+            
+            if (CONCERT_DATES[artistName]) {
+                in2026 = in2026.concat(CONCERT_DATES[artistName]);
+            }
 
             in2026.forEach(d => {
                 allConcerts.push({ artist: artistName, date: d });
