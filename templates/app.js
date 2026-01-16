@@ -104,19 +104,85 @@ function buildTicketUrl(artist, date) {
 function slugToPlace(slug) {
     if (!slug) return '';
     const parts = String(slug).split('-');
-    const city = (parts[0] || '').replace(/_/g, ' ');
+    let city = (parts[0] || '').replace(/_/g, ' ');
     let country = (parts[1] || '').replace(/_/g, ' ');
     const cap = (s) => s.replace(/\b\w/g, (m) => m.toUpperCase());
-    const countryFix = {
-        'usa': 'United States',
-        'uk': 'United Kingdom',
-        'uae': 'United Arab Emirates',
-        'south korea': 'South Korea',
-        'north korea': 'North Korea'
+    
+    const cityFix = {
+        'london': 'Londres',
+        'moscow': 'Moscou',
+        'athens': 'Athènes',
+        'rome': 'Rome',
+        'lisbon': 'Lisbonne',
+        'brussels': 'Bruxelles',
+        'vienna': 'Vienne',
+        'prague': 'Prague',
+        'copenhagen': 'Copenhague',
+        'stockholm': 'Stockholm',
+        'geneva': 'Genève',
+        'zurich': 'Zurich',
+        'munich': 'Munich',
+        'cologne': 'Cologne',
+        'nuremberg': 'Nuremberg',
+        'venice': 'Venise',
+        'florence': 'Florence',
+        'naples': 'Naples',
+        'turin': 'Turin',
+        'milan': 'Milan',
+        'warsaw': 'Varsovie',
+        'cairo': 'Le Caire',
+        'beijing': 'Pékin',
+        'new york': 'New York',
+        'los angeles': 'Los Angeles',
+        'memphis': 'Memphis',
+        'new orleans': 'La Nouvelle-Orléans'
     };
+    
+    const countryFix = {
+        'usa': 'États-Unis',
+        'uk': 'Royaume-Uni',
+        'uae': 'Émirats Arabes Unis',
+        'south korea': 'Corée du Sud',
+        'north korea': 'Corée du Nord',
+        'united states': 'États-Unis',
+        'united kingdom': 'Royaume-Uni',
+        'sweden': 'Suède',
+        'france': 'France',
+        'germany': 'Allemagne',
+        'spain': 'Espagne',
+        'italy': 'Italie',
+        'portugal': 'Portugal',
+        'belgium': 'Belgique',
+        'netherlands': 'Pays-Bas',
+        'switzerland': 'Suisse',
+        'austria': 'Autriche',
+        'poland': 'Pologne',
+        'russia': 'Russie',
+        'japan': 'Japon',
+        'china': 'Chine',
+        'brazil': 'Brésil',
+        'mexico': 'Mexique',
+        'canada': 'Canada',
+        'australia': 'Australie',
+        'new zealand': 'Nouvelle-Zélande',
+        'india': 'Inde',
+        'norway': 'Norvège',
+        'denmark': 'Danemark',
+        'finland': 'Finlande',
+        'greece': 'Grèce',
+        'ireland': 'Irlande',
+        'czech republic': 'République Tchèque',
+        'hungary': 'Hongrie',
+        'romania': 'Roumanie'
+    };
+    
+    const cityNorm = city.toLowerCase();
+    if (cityFix[cityNorm]) city = cityFix[cityNorm];
+    
     const norm = country.toLowerCase();
     if (countryFix[norm]) country = countryFix[norm];
-    return `${cap(city)}${country ? ', ' + country : ''}`.trim();
+    
+    return `${cityFix[cityNorm] ? city : cap(city)}${country ? ', ' + country : ''}`.trim();
 }
 
 function parseLocationsAttr(attr) {
@@ -151,7 +217,8 @@ function initLeaflet() {
         });
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
-            noWrap: true
+            noWrap: true,
+            maxZoom: 19
         }).addTo(leafletMap);
         leafletGroup = L.featureGroup().addTo(leafletMap);
         leafletMap.setView([20, 0], 2);
