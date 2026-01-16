@@ -49,6 +49,9 @@ const CONCERT_DATES = {
     ]
 };
 
+// Image de publicité à afficher dans la modale (remplace par ton URL/chemin)
+const AD_IMAGE_URL = '/static/img/pub.png'; // ou une URL externe
+
 // Leaflet
 let leafletMap = null;
 let leafletGroup = null;
@@ -294,6 +297,8 @@ async function openModal(card) {
     const modalSoundcloud = document.getElementById('modalSoundcloud');
     const modalTourContainer = document.getElementById('modalTourContainer');
     const modalTourList = document.getElementById('modalTourList');
+    const modalPub = document.getElementById('modalPub');
+    const modalPubImage = document.getElementById('modalPubImage');
 
     const id = card.dataset.id;
     const name = card.dataset.name;
@@ -374,6 +379,9 @@ async function openModal(card) {
     modalAudio.style.display = 'none';
     modalSoundcloud.innerHTML = '';
     modalSoundcloud.style.display = 'none';
+    if (modalPub) {
+        modalPub.style.display = 'none';
+    }
 
     if (musique.trim() !== '') {
         if (isSoundCloudUrl(musique)) {
@@ -395,6 +403,11 @@ async function openModal(card) {
         }
     } else {
         modalExcerpt.textContent = `Pas d'extrait audio disponible. (Single lié à : ${firstAlbum})`;
+    }
+
+    if (AD_IMAGE_URL && modalPub && modalPubImage) {
+        modalPubImage.src = AD_IMAGE_URL;
+        modalPub.style.display = 'block';
     }
 
     if (modalTourList) modalTourList.innerHTML = '';
