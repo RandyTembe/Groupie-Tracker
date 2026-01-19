@@ -628,3 +628,10 @@ document.addEventListener('DOMContentLoaded', () => {
     loadToursOnCards();
     loadConcertsSection();
 });
+
+// Register service worker safely (if needed in the future)
+if ('serviceWorker' in navigator && document.readyState === 'complete') {
+    navigator.serviceWorker.register('/sw.js').catch(err => {
+        console.log('Service Worker registration not available:', err);
+    });
+}
