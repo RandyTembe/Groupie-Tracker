@@ -15,6 +15,7 @@
         <a href="#artistes">Artistes</a>
         <a href="#concerts">Concerts</a>
         <a href="#genres">Genres</a>
+        <a href="/map" class="btn-billets" style="margin-right: 10px;">CARTE</a>
         <a href="/historique" class="btn-billets">MES BILLETS</a>
     </nav>
 </header>
@@ -48,7 +49,7 @@
                     
                     <div class="detail-item">
                         <span class="detail-label">Concerts:</span>
-                        <span class="detail-value">{{len .Locations}} dates</span>
+                        <span class="detail-value">{{len .LocationsData}} dates</span>
                     </div>
                     
                     <div class="divider"></div>
@@ -105,6 +106,9 @@
                 <div class="tour-2026-modal" id="modalTourContainer">
                     <div class="tour-title">Tournée 2026</div>
                     <ul class="tour-list" id="modalTourList"></ul>
+                </div>
+                <div class="modal-pub">
+                    <img src="/static/img/pubs.png" alt="Publicité" class="pub-image">
                 </div>
             </div>
         </div>
