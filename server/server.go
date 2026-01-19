@@ -17,16 +17,22 @@ import (
 )
 
 type Artist struct {
-	ID           int      `json:"id"`
-	Image        string   `json:"image"`
-	Name         string   `json:"name"`
-	Members      []string `json:"members"`
-	CreationDate int      `json:"creationDate"`
-	FirstAlbum   string   `json:"firstAlbum"`
-	Locations    string   `json:"locations"`
-	ConcertDates string   `json:"concertDates"`
-	Relations    string   `json:"relations"`
-	Musique      string   `json:"musique"`
+	ID                int      `json:"id"`
+	Image             string   `json:"image"`
+	Name              string   `json:"name"`
+	Members           []string `json:"members"`
+	CreationDate      int      `json:"creationDate"`
+	FirstAlbum        string   `json:"firstAlbum"`
+	LocationsURL      string   `json:"locations"`
+	LocationsData     []string `json:"-"`
+	ConcertDates      string   `json:"concertDates"`
+	Relations         string   `json:"relations"`
+	Musique           string   `json:"musique"`
+}
+
+// Locations returns the locations data for the template
+func (a *Artist) Locations() []string {
+	return a.LocationsData
 }
 
 type Server struct {
@@ -67,14 +73,12 @@ func corsMiddleware(next http.Handler) http.Handler {
 
 func init() {
 	// Seed sample data si vide
-	// Try to load artists from api/artists.json so API data matches the homepage
 	dataPath := filepath.Join(".", "api", "artists.json")
 	if b, err := os.ReadFile(dataPath); err == nil {
 		var artists []Artist
 		if err := json.Unmarshal(b, &artists); err == nil && len(artists) > 0 {
 			artistsStore.Lock()
 			artistsStore.items = artists
-			// compute next id
 			maxID := 0
 			for _, a := range artists {
 				if a.ID > maxID {
@@ -87,11 +91,10 @@ func init() {
 		}
 	}
 
-	// Fallback: seed sample data if loading failed or file missing
 	if len(artistsStore.items) == 0 {
 		artistsStore.items = []Artist{
-			{ID: 1, Image: "", Name: "Queen", Members: []string{"Freddie Mercury", "Brian May", "John Deacon", "Roger Taylor"}, CreationDate: 1970, FirstAlbum: "Queen", Locations: "London, UK", ConcertDates: "1973-07-13", Relations: "none"},
-			{ID: 2, Image: "", Name: "Linkin Park", Members: []string{"Chester Bennington", "Mike Shinoda", "Brad Delson", "Dave Farrell", "Rob Bourdon", "Joe Hahn"}, CreationDate: 1996, FirstAlbum: "Hybrid Theory", Locations: "Agoura Hills, California, USA", ConcertDates: "2000-10-24", Relations: "nu metal"},
+			{ID: 1, Image: "", Name: "Queen", Members: []string{"Freddie Mercury", "Brian May", "John Deacon", "Roger Taylor"}, CreationDate: 1970, FirstAlbum: "Queen", LocationsURL: "London, UK", ConcertDates: "1973-07-13", Relations: "none"},
+			{ID: 2, Image: "", Name: "Linkin Park", Members: []string{"Chester Bennington", "Mike Shinoda", "Brad Delson", "Dave Farrell", "Rob Bourdon", "Joe Hahn"}, CreationDate: 1996, FirstAlbum: "Hybrid Theory", LocationsURL: "Agoura Hills, California, USA", ConcertDates: "2000-10-24", Relations: "nu metal"},
 		}
 		artistsStore.next = 3
 	}
@@ -104,7 +107,6 @@ func NewServer(addr string) *Server {
 	mux.HandleFunc("/map", mapPageHandler)
 	mux.HandleFunc("/historique", historiqueHandler)
 	mux.HandleFunc("/api/locations", locationsHandler)
-	// Removed artist detail routes; we keep only modal on listing page
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(".", "static")))))
 	mux.Handle("/templates/", http.StripPrefix("/templates/", http.FileServer(http.Dir(filepath.Join(".", "templates")))))
 	mux.HandleFunc("/api", apiInfoHandler)
@@ -164,6 +166,31 @@ func locationsHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(b)
 }
 
+func loadLocationsData() (map[int][]string, error) {
+	type LocationsData struct {
+		Index []struct {
+			ID        int      `json:"id"`
+			Locations []string `json:"locations"`
+		} `json:"index"`
+	}
+
+	data, err := os.ReadFile(filepath.Join(".", "api", "locations.json"))
+	if err != nil {
+		return nil, err
+	}
+
+	var locData LocationsData
+	if err := json.Unmarshal(data, &locData); err != nil {
+		return nil, err
+	}
+
+	locMap := make(map[int][]string)
+	for _, item := range locData.Index {
+		locMap[item.ID] = item.Locations
+	}
+	return locMap, nil
+}
+
 func groupesHandler(w http.ResponseWriter, r *http.Request) {
 	data, err := os.ReadFile(filepath.Join(".", "api", "artists.json"))
 	if err != nil {
@@ -174,6 +201,16 @@ func groupesHandler(w http.ResponseWriter, r *http.Request) {
 	if err := json.Unmarshal(data, &artists); err != nil {
 		http.Error(w, "Erreur JSON", http.StatusInternalServerError)
 		return
+	}
+
+	// Load locations and map them to artists
+	locMap, err := loadLocationsData()
+	if err == nil {
+		for i := range artists {
+			if locs, ok := locMap[artists[i].ID]; ok {
+				artists[i].LocationsData = locs
+			}
+		}
 	}
 
 	tmpl, err := template.ParseFiles(filepath.Join("templates", "index.html"))
@@ -288,8 +325,6 @@ func i18nHandler(w http.ResponseWriter, r *http.Request) {
 		"translations": map[string]string{},
 	})
 }
-
-// Artist detail page removed – kept via modal on listing
 
 // proxyHandler sécurise l'accès aux endpoints externes nécessaires (dates/locations)
 func proxyHandler(w http.ResponseWriter, r *http.Request) {
