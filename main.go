@@ -2,7 +2,7 @@ package main
 
 import (
     "log"
-    "Groupie-Tracker/server"
+    "github.com/RandyTembe/Groupie-Tracker/server"
 )
 
 func main() {

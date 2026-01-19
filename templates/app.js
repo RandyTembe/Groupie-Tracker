@@ -207,31 +207,6 @@ async function fetchJSON(u) {
     return r.json();
 }
 
-// Shared helpers
-function getDatesFromResponse(data) {
-    const d = Array.isArray(data?.dates) ? data.dates : (Array.isArray(data?.Dates) ? data.Dates : []);
-    return Array.isArray(d) ? d : [];
-}
-
-function enrichDates2026(artistName, dates) {
-    let in2026 = (dates || []).filter(d => yearFromDateStr(d) === 2026);
-    if (CONCERT_DATES[artistName]) {
-        in2026 = in2026.concat(CONCERT_DATES[artistName]);
-    }
-    return in2026;
-}
-
-function makeTicketLink(artistName, dateText) {
-    const a = document.createElement('a');
-    a.href = buildTicketUrl(artistName, dateText);
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    a.textContent = formatDateForDisplay(dateText);
-    a.style.color = 'inherit';
-    a.style.textDecoration = 'none';
-    return a;
-}
-
 // Leaflet functions
 function initLeaflet() {
     if (!leafletMap) {
@@ -441,8 +416,11 @@ async function openModal(card) {
         try {
             const proxy = `/api/proxy?url=${encodeURIComponent(concertsUrl)}`;
             const data = await fetchJSON(proxy);
-            const dates = getDatesFromResponse(data);
-            const in2026 = enrichDates2026(name, dates);
+            const dates = Array.isArray(data.dates) ? data.dates : (Array.isArray(data.Dates) ? data.Dates : []);
+            let in2026 = dates.filter(d => yearFromDateStr(d) === 2026);
+            if (CONCERT_DATES[name]) {
+                in2026 = in2026.concat(CONCERT_DATES[name]);
+            }
             if (in2026.length > 0) {
                 modalTourContainer.style.display = 'block';
                 in2026.forEach(d => {
@@ -486,8 +464,11 @@ async function loadToursOnCards() {
             if (!concertsUrl) { if (section) section.remove(); continue; }
             const proxy = `/api/proxy?url=${encodeURIComponent(concertsUrl)}`;
             const data = await fetchJSON(proxy);
-            const dates = getDatesFromResponse(data);
-            const dates2026 = enrichDates2026(artistName, dates);
+            const dates = Array.isArray(data.dates) ? data.dates : (Array.isArray(data.Dates) ? data.Dates : []);
+            let dates2026 = dates.filter(d => yearFromDateStr(d) === 2026);
+            if (CONCERT_DATES[artistName]) {
+                dates2026 = dates2026.concat(CONCERT_DATES[artistName]);
+            }
             if (!section || !list) continue;
             if (dates2026.length === 0) {
                 section.remove();
@@ -495,7 +476,14 @@ async function loadToursOnCards() {
                 list.innerHTML = '';
                 dates2026.forEach(d => {
                     const li = document.createElement('li');
-                    li.appendChild(makeTicketLink(artistName, d));
+                    const a = document.createElement('a');
+                    a.href = buildTicketUrl(artistName, d);
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    a.textContent = formatDateForDisplay(d);
+                    a.style.color = 'inherit';
+                    a.style.textDecoration = 'none';
+                    li.appendChild(a);
                     list.appendChild(li);
                 });
             }
@@ -522,8 +510,12 @@ async function loadConcertsSection() {
 
             const proxy = `/api/proxy?url=${encodeURIComponent(concertsUrl)}`;
             const data = await fetchJSON(proxy);
-            const dates = getDatesFromResponse(data);
-            const in2026 = enrichDates2026(artistName, dates);
+            const dates = Array.isArray(data.dates) ? data.dates : (Array.isArray(data.Dates) ? data.Dates : []);
+            let in2026 = dates.filter(d => yearFromDateStr(d) === 2026);
+            
+            if (CONCERT_DATES[artistName]) {
+                in2026 = in2026.concat(CONCERT_DATES[artistName]);
+            }
 
             in2026.forEach(d => {
                 allConcerts.push({ artist: artistName, date: d });
