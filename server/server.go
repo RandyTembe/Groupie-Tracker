@@ -153,7 +153,7 @@ func locationsHandler(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
-	p := filepath.Join(".", "api", "locations.json")
+	p := filepath.Join(".", "api", "location.json")
 	b, err := os.ReadFile(p)
 	if err != nil {
 		http.Error(w, "Impossible de lire api/locations.json", http.StatusInternalServerError)
