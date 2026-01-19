@@ -1,10 +1,9 @@
-
 package server
 
 import (
 	"encoding/json"
-	"io"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -102,9 +101,11 @@ func NewServer(addr string) *Server {
 	mux.HandleFunc("/", homeHandler)
 	mux.HandleFunc("/groupes", groupesHandler)
 	mux.HandleFunc("/map", mapPageHandler)
+	mux.HandleFunc("/historique", historiqueHandler)
 	mux.HandleFunc("/api/locations", locationsHandler)
 	// Removed artist detail routes; we keep only modal on listing page
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(".", "static")))))
+	mux.Handle("/templates/", http.StripPrefix("/templates/", http.FileServer(http.Dir(filepath.Join(".", "templates")))))
 	mux.HandleFunc("/api", apiInfoHandler)
 	mux.HandleFunc("/api/artists", artistsCollectionHandler)
 	mux.HandleFunc("/api/artists/", artistsItemHandler)
@@ -138,6 +139,11 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 // Map page
 func mapPageHandler(w http.ResponseWriter, r *http.Request) {
 	tmplPath := filepath.Join("templates", "map.html")
+	http.ServeFile(w, r, tmplPath)
+}
+
+func historiqueHandler(w http.ResponseWriter, r *http.Request) {
+	tmplPath := filepath.Join("templates", "historique.html")
 	http.ServeFile(w, r, tmplPath)
 }
 
