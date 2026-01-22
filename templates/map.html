@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carte des artistes</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<<<<<<< HEAD
     <style>
         :root {
             --bg: #0c1018;
@@ -33,6 +34,9 @@
             #map { height: 60vh; }
         }
     </style>
+=======
+    <link rel="stylesheet" href="/static/CSS/map.css">
+>>>>>>> chloe
 </head>
 <body>
     <div class="layout">
@@ -49,6 +53,7 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<<<<<<< HEAD
     <script>
         const map = L.map('map', { worldCopyJump: false, minZoom: 2, maxZoom: 12 }).setView([20, 0], 2);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -313,5 +318,8 @@
 
         loadData();
     </script>
+=======
+    <script src="/static/js/map.js"></script>
+>>>>>>> chloe
 </body>
 </html>

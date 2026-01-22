@@ -5,6 +5,7 @@
   <title data-i18n="details">Détails du groupe</title>
   <link rel="stylesheet" href="/static/CSS/notes.css">
   <link rel="stylesheet" href="/static/CSS/image.css">
+<<<<<<< HEAD
   <style>
     .artist-container { max-width:900px; margin:28px auto; padding:20px; color:#fff }
     .artist-header { display:flex; align-items:center; gap:16px; margin-bottom:16px }
@@ -82,6 +83,9 @@
       display: none;
     }
   </style>
+=======
+  <link rel="stylesheet" href="/static/CSS/artist.css">
+>>>>>>> chloe
 </head>
 <body>
   <div class="artist-container">
@@ -89,9 +93,15 @@
     <div id="artistRoot">
       <div class="artist-header">
         <div id="artistImage" class="artist-image" aria-hidden="true"></div>
+<<<<<<< HEAD
         <div style="flex:1">
           <div id="artistName" class="artist-name" data-i18n="loading">Chargement…</div>
           <div id="artistMeta" style="margin-top:8px;color:#ddd;margin-bottom:16px"></div>
+=======
+        <div class="flex-1">
+          <div id="artistName" class="artist-name" data-i18n="loading">Chargement…</div>
+          <div id="artistMeta" class="artist-meta"></div>
+>>>>>>> chloe
           <button id="playerBtn" type="button" aria-label="Lire la musique" class="player-btn"></button>
           <audio id="audioPlayer"></audio>
         </div>
@@ -122,6 +132,7 @@
           console.log('BOUTON CLIQUÉ!', musicUrl);
           if (musicUrl) {
             if (isSoundCloud) {
+<<<<<<< HEAD
               // Créer un modal avec le lecteur SoundCloud embed
               const modal = document.createElement('div');
               modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;';
@@ -130,12 +141,27 @@
                   <div style="display:flex;justify-content:space-between;margin-bottom:15px;">
                     <h3 style="margin:0;color:#333;">Lecteur Audio</h3>
                     <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#666;">&times;</button>
+=======
+              // Créer un modal avec le lecteur audio SoundCloud embed
+              const modal = document.createElement('div');
+              modal.className = 'modal';
+              modal.innerHTML = `
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h3 class="modal-title">Lecteur Audio</h3>
+                    <button class="modal-close">&times;</button>
+>>>>>>> chloe
                   </div>
                   <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" 
                     src="https://w.soundcloud.com/player/?url=${encodeURIComponent(musicUrl)}&color=%23ff5500&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
                 </div>
               `;
+<<<<<<< HEAD
               document.body.appendChild(modal);
+=======
+              document.body.appendChild(modal);// ajouter le modal au body
+              modal.querySelector('.modal-close').addEventListener('click', () => modal.remove());
+>>>>>>> chloe
               modal.addEventListener('click', function(e) {
                 if (e.target === modal) modal.remove();
               });
@@ -163,7 +189,11 @@
         q('#rawJsonPre').textContent = 'Aucun ID fourni';
         return;
       }
+<<<<<<< HEAD
       fetch('/api/artists/' + encodeURIComponent(id))
+=======
+      fetch('/api/artists/' + encodeURIComponent(id)) // récupérer les données de l'artiste
+>>>>>>> chloe
         .then(r=>r.ok ? r.json() : Promise.reject('not found'))
         .then(data => {
           q('#artistName').textContent = data.name || data.Name || '—';
@@ -182,6 +212,7 @@
           }
           
           // Construire un affichage beau plutôt que du JSON brut
+<<<<<<< HEAD
           let infoHtml = '<div style="padding:20px">';
           
           // Image si disponible
@@ -198,6 +229,24 @@
           
           if (data.FirstAlbum || data.firstAlbum) {
             infoHtml += '<div style="background:#f0f4f8;padding:15px;border-radius:8px;border-left:4px solid #667eea"><p style="font-size:12px;color:#666;margin-bottom:5px">PREMIER ALBUM</p><p style="font-size:16px;font-weight:bold;color:#333">' + escapeHtml(String(data.FirstAlbum || data.firstAlbum)) + '</p></div>';
+=======
+          let infoHtml = '<div class="info-wrapper">';
+          
+          // Image si disponible
+          if (data.Image || data.image) {
+            infoHtml += '<div class="info-image"><img src="' + (data.Image || data.image) + '" alt="' + escapeHtml(data.Name || data.name || '') + '"/></div>';
+          }
+          
+          // Infos principales en grille
+          infoHtml += '<div class="info-grid">';
+          
+          if (data.CreationDate || data.creationDate) {
+            infoHtml += '<div class="info-card"><p class="info-card-label">ANNÉE DE CRÉATION</p><p class="info-card-value">' + escapeHtml(String(data.CreationDate || data.creationDate)) + '</p></div>';
+          }
+          
+          if (data.FirstAlbum || data.firstAlbum) {
+            infoHtml += '<div class="info-card album"><p class="info-card-label">PREMIER ALBUM</p><p class="info-card-value">' + escapeHtml(String(data.FirstAlbum || data.firstAlbum)) + '</p></div>';
+>>>>>>> chloe
           }
           
           infoHtml += '</div>';
@@ -205,9 +254,15 @@
           // Section des membres
           const members = data.Members || data.members || [];
           if (members && members.length) {
+<<<<<<< HEAD
             infoHtml += '<div style="background:#f9fafb;padding:20px;border-radius:8px;border-top:3px solid #667eea"><p style="font-size:14px;font-weight:bold;color:#333;margin-bottom:15px">MEMBRES (' + members.length + ')</p><ul style="list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px">';
             members.forEach(function(m) {
               infoHtml += '<li style="padding:10px;background:#fff;border-radius:6px;border-left:3px solid #764ba2;font-size:14px;color:#333">' + escapeHtml(m) + '</li>';
+=======
+            infoHtml += '<div class="members-section"><p class="members-title">MEMBRES (' + members.length + ')</p><ul class="members-list">';
+            members.forEach(function(m) {
+              infoHtml += '<li class="member-item">' + escapeHtml(m) + '</li>';
+>>>>>>> chloe
             });
             infoHtml += '</ul></div>';
           }
@@ -223,7 +278,11 @@
   </script>
 
   <script>
+<<<<<<< HEAD
     document.addEventListener('DOMContentLoaded', () => {
+=======
+    document.addEventListener('DOMContentLoaded', () => { // initialisation de la langue
+>>>>>>> chloe
       if (window.i18n && window.i18n.addLanguageSwitcher) {
         window.i18n.addLanguageSwitcher();
       }
