@@ -1,18 +1,9 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> chloe
 package server
 
 import (
 	"encoding/json"
-<<<<<<< HEAD
-	"io"
-	"html/template"
-=======
 	"html/template"
 	"io"
->>>>>>> chloe
 	"log"
 	"net/http"
 	"net/url"
@@ -25,22 +16,6 @@ import (
 )
 
 type Artist struct {
-<<<<<<< HEAD
-	ID                int      `json:"id"`
-	Image             string   `json:"image"`
-	Name              string   `json:"name"`
-	Members           []string `json:"members"`
-	CreationDate      int      `json:"creationDate"`
-	FirstAlbum        string   `json:"firstAlbum"`
-	LocationsURL      string   `json:"locations"`
-	LocationsData     []string `json:"-"`
-	ConcertDates      string   `json:"concertDates"`
-	Relations         string   `json:"relations"`
-	Musique           string   `json:"musique"`
-}
-
-// Locations returns the locations data for the template
-=======
 	ID            int      `json:"id"`
 	Image         string   `json:"image"`
 	Name          string   `json:"name"`
@@ -55,7 +30,6 @@ type Artist struct {
 }
 
 // Locations retourne les données de localisation pour le template
->>>>>>> chloe
 func (a *Artist) Locations() []string {
 	return a.LocationsData
 }
@@ -75,21 +49,14 @@ var (
 	}
 )
 
-<<<<<<< HEAD
-=======
 // centraliser la réponse d’erreur pour éviter la duplication et garantir un format JSON cohérent pour les clients API.
->>>>>>> chloe
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(map[string]string{"error": msg})
 }
 
-<<<<<<< HEAD
-func corsMiddleware(next http.Handler) http.Handler {
-=======
 func corsMiddleware(next http.Handler) http.Handler { // ajoute une couche pour les routes d'API
->>>>>>> chloe
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/api/") {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -105,11 +72,7 @@ func corsMiddleware(next http.Handler) http.Handler { // ajoute une couche pour 
 }
 
 func init() {
-<<<<<<< HEAD
-	// Seed sample data si vide
-=======
 	// Pré-remplit des données si la liste est vide
->>>>>>> chloe
 	dataPath := filepath.Join(".", "api", "artists.json")
 	if b, err := os.ReadFile(dataPath); err == nil {
 		var artists []Artist
@@ -137,11 +100,7 @@ func init() {
 	}
 }
 
-<<<<<<< HEAD
-func NewServer(addr string) *Server {
-=======
-func NewServer(addr string) *Server {  // configure les routes et les handlers
->>>>>>> chloe
+func NewServer(addr string) *Server { // configure les routes et les handlers
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", homeHandler)
 	mux.HandleFunc("/groupes", groupesHandler)
@@ -165,11 +124,7 @@ func NewServer(addr string) *Server {  // configure les routes et les handlers
 	return &Server{srv: srv}
 }
 
-<<<<<<< HEAD
-func (s *Server) Start() error {
-=======
 func (s *Server) Start() error { // démarre le serveur HTTP
->>>>>>> chloe
 	log.Printf("Server started on http://localhost%s", s.srv.Addr)
 	return s.srv.ListenAndServe()
 }
@@ -183,31 +138,19 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/groupes", http.StatusMovedPermanently)
 }
 
-<<<<<<< HEAD
-// Map page
-=======
 // page de la map
->>>>>>> chloe
 func mapPageHandler(w http.ResponseWriter, r *http.Request) {
 	tmplPath := filepath.Join("templates", "map.html")
 	http.ServeFile(w, r, tmplPath)
 }
 
-<<<<<<< HEAD
-// Historique page (My tickets)
-=======
 // page de l'historique (Mes billets)
->>>>>>> chloe
 func historiqueHandler(w http.ResponseWriter, r *http.Request) {
 	tmplPath := filepath.Join("templates", "historique.html")
 	http.ServeFile(w, r, tmplPath)
 }
 
-<<<<<<< HEAD
-// locationsHandler returns the local locations.json content
-=======
 // Handler pour /api/locations
->>>>>>> chloe
 func locationsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSONError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -222,11 +165,8 @@ func locationsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	_, _ = w.Write(b)
 }
-<<<<<<< HEAD
 
-=======
 // charge les données de localisation depuis le fichier JSON
->>>>>>> chloe
 func loadLocationsData() (map[int][]string, error) {
 	type LocationsData struct {
 		Index []struct {
@@ -235,11 +175,7 @@ func loadLocationsData() (map[int][]string, error) {
 		} `json:"index"`
 	}
 
-<<<<<<< HEAD
-	data, err := os.ReadFile(filepath.Join(".", "api", "locations.json"))
-=======
 	data, err := os.ReadFile(filepath.Join(".", "api", "location.json"))
->>>>>>> chloe
 	if err != nil {
 		return nil, err
 	}
@@ -255,11 +191,8 @@ func loadLocationsData() (map[int][]string, error) {
 	}
 	return locMap, nil
 }
-<<<<<<< HEAD
 
-=======
 // Handler pour la page des groupes
->>>>>>> chloe
 func groupesHandler(w http.ResponseWriter, r *http.Request) {
 	data, err := os.ReadFile(filepath.Join(".", "api", "artists.json"))
 	if err != nil {
@@ -272,11 +205,7 @@ func groupesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-<<<<<<< HEAD
-	// Load locations and map them to artists
-=======
 	// Charge les localisations et les associe aux artistes
->>>>>>> chloe
 	locMap, err := loadLocationsData()
 	if err == nil {
 		for i := range artists {
@@ -425,8 +354,4 @@ func proxyHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 	w.WriteHeader(resp.StatusCode)
 	_, _ = io.Copy(w, resp.Body)
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> chloe
