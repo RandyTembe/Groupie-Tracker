@@ -29,7 +29,7 @@ type Artist struct {
 	Musique       string   `json:"musique"`
 }
 
-// Locations returns the locations data for the template
+// Locations retourne les données de localisation pour le template
 func (a *Artist) Locations() []string {
 	return a.LocationsData
 }
@@ -49,13 +49,14 @@ var (
 	}
 )
 
+// centraliser la réponse d’erreur pour éviter la duplication et garantir un format JSON cohérent pour les clients API.
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(map[string]string{"error": msg})
 }
 
-func corsMiddleware(next http.Handler) http.Handler {
+func corsMiddleware(next http.Handler) http.Handler { // ajoute une couche pour les routes d'API
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/api/") {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -71,7 +72,7 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 func init() {
-	// Seed sample data si vide
+	// Pré-remplit des données si la liste est vide
 	dataPath := filepath.Join(".", "api", "artists.json")
 	if b, err := os.ReadFile(dataPath); err == nil {
 		var artists []Artist
@@ -99,7 +100,7 @@ func init() {
 	}
 }
 
-func NewServer(addr string) *Server {
+func NewServer(addr string) *Server {  // configure les routes et les handlers
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", homeHandler)
 	mux.HandleFunc("/groupes", groupesHandler)
@@ -123,7 +124,7 @@ func NewServer(addr string) *Server {
 	return &Server{srv: srv}
 }
 
-func (s *Server) Start() error {
+func (s *Server) Start() error { // démarre le serveur HTTP
 	log.Printf("Server started on http://localhost%s", s.srv.Addr)
 	return s.srv.ListenAndServe()
 }
@@ -137,19 +138,19 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/groupes", http.StatusMovedPermanently)
 }
 
-// Map page
+// page de la map
 func mapPageHandler(w http.ResponseWriter, r *http.Request) {
 	tmplPath := filepath.Join("templates", "map.html")
 	http.ServeFile(w, r, tmplPath)
 }
 
-// Historique page (My tickets)
+// page de l'historique (Mes billets)
 func historiqueHandler(w http.ResponseWriter, r *http.Request) {
 	tmplPath := filepath.Join("templates", "historique.html")
 	http.ServeFile(w, r, tmplPath)
 }
 
-// locationsHandler returns the local locations.json content
+// Handler pour /api/locations
 func locationsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSONError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -164,7 +165,7 @@ func locationsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	_, _ = w.Write(b)
 }
-
+// charge les données de localisation depuis le fichier JSON
 func loadLocationsData() (map[int][]string, error) {
 	type LocationsData struct {
 		Index []struct {
@@ -189,7 +190,7 @@ func loadLocationsData() (map[int][]string, error) {
 	}
 	return locMap, nil
 }
-
+// Handler pour la page des groupes
 func groupesHandler(w http.ResponseWriter, r *http.Request) {
 	data, err := os.ReadFile(filepath.Join(".", "api", "artists.json"))
 	if err != nil {
@@ -202,7 +203,7 @@ func groupesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Load locations and map them to artists
+	// Charge les localisations et les associe aux artistes
 	locMap, err := loadLocationsData()
 	if err == nil {
 		for i := range artists {
