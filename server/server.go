@@ -107,7 +107,11 @@ func NewServer(addr string) *Server { // configure les routes et les handlers
 	mux.HandleFunc("/map", mapPageHandler)
 	mux.HandleFunc("/historique", historiqueHandler)
 	mux.HandleFunc("/api/locations", locationsHandler)
+
+	// Servir les fichiers statiques depuis le dossier static
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(".", "static")))))
+	mux.Handle("/CSS/", http.StripPrefix("/CSS/", http.FileServer(http.Dir(filepath.Join(".", "CSS")))))
+	mux.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir(filepath.Join(".", "js")))))
 	mux.Handle("/templates/", http.StripPrefix("/templates/", http.FileServer(http.Dir(filepath.Join(".", "templates")))))
 	mux.HandleFunc("/api", apiInfoHandler)
 	mux.HandleFunc("/api/artists", artistsCollectionHandler)
