@@ -122,12 +122,17 @@ func NewServer(addr string) *Server {
 }
 
 func (s *Server) Start() error {
-	log.Printf("Server started on %s", s.srv.Addr)
-	err := s.srv.ListenAndServe()
-	if err != nil && err != http.ErrServerClosed {
-		log.Printf("Server failed: %v", err)
-	}
-	return err
+    // Vérifie si le port est déjà fourni par l'env
+    port := os.Getenv("PORT")
+    if port == "" {
+        port = "3000" // fallback local
+    }
+
+    addr := ":" + port
+    s.srv.Addr = addr
+
+    log.Printf("Starting HTTP server on %s", addr)
+    return s.srv.ListenAndServe()
 }
 
 // --- Handlers ---
