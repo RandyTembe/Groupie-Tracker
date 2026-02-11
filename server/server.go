@@ -128,10 +128,20 @@ func NewServer(addr string) *Server { // configure les routes et les handlers
 	return &Server{srv: srv}
 }
 
-func (s *Server) Start() error { // démarre le serveur HTTP
+func (s *Server) Start() error {
 	log.Printf("Server started on http://localhost%s", s.srv.Addr)
 	return s.srv.ListenAndServe()
+=======
+func (s *Server) Start() error {
+	log.Printf("Starting HTTP server on %s", s.srv.Addr)
+	err := s.srv.ListenAndServe()
+	if err != nil {
+		log.Printf("Server failed: %v", err)
+	}
+	return err
+>>>>>>> bf71f76 (Use dynamic PORT for Scalingo)
 }
+
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
@@ -358,5 +368,4 @@ func proxyHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 	w.WriteHeader(resp.StatusCode)
 	_, _ = io.Copy(w, resp.Body)
-}
 }
