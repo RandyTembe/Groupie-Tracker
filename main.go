@@ -1,13 +1,22 @@
 package main
 
 import (
-    "log"
-    "github.com/RandyTembe/Groupie-Tracker/server"
+	"log"
+	"os"
+
+	"github.com/RandyTembe/Groupie-Tracker/server"
 )
 
 func main() {
-    s := server.NewServer(":8080")
-    if err := s.Start(); err != nil {
-        log.Fatalf("server error: %v", err)
-    }
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Println("BOOTING on port", port)
+
+	s := server.NewServer(":" + port)
+	if err := s.Start(); err != nil {
+		log.Fatalf("server error: %v", err)
+	}
 }
