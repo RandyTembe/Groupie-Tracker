@@ -1,23 +1,23 @@
 package main
 
 import (
-    "log"
-    "os"
+	"log"
+	"os"
 
-    "github.com/RandyTembe/Groupie-Tracker/server"
+	"github.com/RandyTembe/Groupie-Tracker/server"
 )
 
 func main() {
-    // Récupère le port fourni par Scalingo
-    port := os.Getenv("PORT")
-    if port == "" {
-        port = "3000" // fallback local pour tester en local
-    }
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000" // fallback local
+	}
 
-    log.Println("BOOTING on port", port)
+	addr := "0.0.0.0:" + port // <-- important
+	log.Println("Starting server on", addr)
 
-    s := server.NewServer(":" + port)
-    if err := s.Start(); err != nil {
-        log.Fatalf("server error: %v", err)
-    }
+	s := server.NewServer(addr)
+	if err := s.Start(); err != nil {
+		log.Fatalf("Server error: %v", err)
+	}
 }
