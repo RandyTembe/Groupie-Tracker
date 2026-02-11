@@ -29,7 +29,6 @@ type Artist struct {
 	Musique       string   `json:"musique"`
 }
 
-// Locations returns the locations data for the template
 func (a *Artist) Locations() []string {
 	return a.LocationsData
 }
@@ -71,7 +70,6 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 func init() {
-	// Seed sample data si vide
 	dataPath := filepath.Join(".", "api", "artists.json")
 	if b, err := os.ReadFile(dataPath); err == nil {
 		var artists []Artist
@@ -117,53 +115,46 @@ func NewServer(addr string) *Server {
 	srv := &http.Server{
 		Addr:         addr,
 		Handler:      corsMiddleware(mux),
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 30 * time.Second,
 	}
 	return &Server{srv: srv}
 }
 
 func (s *Server) Start() error {
-	log.Printf("Starting HTTP server on %s", s.srv.Addr)
+	log.Printf("Server started on %s", s.srv.Addr)
 	err := s.srv.ListenAndServe()
-	if err != nil {
+	if err != nil && err != http.ErrServerClosed {
 		log.Printf("Server failed: %v", err)
 	}
 	return err
 }
 
-
+// --- Handlers ---
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
 	}
-	// Rediriger vers /groupes
 	http.Redirect(w, r, "/groupes", http.StatusMovedPermanently)
 }
 
-// Map page
 func mapPageHandler(w http.ResponseWriter, r *http.Request) {
-	tmplPath := filepath.Join("templates", "map.html")
-	http.ServeFile(w, r, tmplPath)
+	http.ServeFile(w, r, filepath.Join("templates", "map.html"))
 }
 
-// Historique page (My tickets)
 func historiqueHandler(w http.ResponseWriter, r *http.Request) {
-	tmplPath := filepath.Join("templates", "historique.html")
-	http.ServeFile(w, r, tmplPath)
+	http.ServeFile(w, r, filepath.Join("templates", "historique.html"))
 }
 
-// locationsHandler returns the local locations.json content
 func locationsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSONError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
-	p := filepath.Join(".", "api", "location.json")
-	b, err := os.ReadFile(p)
+	b, err := os.ReadFile(filepath.Join(".", "api", "location.json"))
 	if err != nil {
-		http.Error(w, "Impossible de lire api/locations.json", http.StatusInternalServerError)
+		http.Error(w, "Impossible de lire api/location.json", http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -207,7 +198,6 @@ func groupesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Load locations and map them to artists
 	locMap, err := loadLocationsData()
 	if err == nil {
 		for i := range artists {
@@ -330,7 +320,6 @@ func i18nHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// proxyHandler sécurise l'accès aux endpoints externes nécessaires (dates/locations)
 func proxyHandler(w http.ResponseWriter, r *http.Request) {
 	raw := r.URL.Query().Get("url")
 	if raw == "" {
@@ -342,7 +331,6 @@ func proxyHandler(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusBadRequest, "invalid url")
 		return
 	}
-	// Autoriser seulement l'API groupietrackers
 	if u.Scheme != "https" || u.Host != "groupietrackers.herokuapp.com" || !strings.HasPrefix(u.Path, "/api/") {
 		writeJSONError(w, http.StatusForbidden, "forbidden target")
 		return
