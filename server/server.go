@@ -1,10 +1,9 @@
-
 package server
 
 import (
 	"encoding/json"
-	"io"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -17,17 +16,17 @@ import (
 )
 
 type Artist struct {
-	ID                int      `json:"id"`
-	Image             string   `json:"image"`
-	Name              string   `json:"name"`
-	Members           []string `json:"members"`
-	CreationDate      int      `json:"creationDate"`
-	FirstAlbum        string   `json:"firstAlbum"`
-	LocationsURL      string   `json:"locations"`
-	LocationsData     []string `json:"-"`
-	ConcertDates      string   `json:"concertDates"`
-	Relations         string   `json:"relations"`
-	Musique           string   `json:"musique"`
+	ID            int      `json:"id"`
+	Image         string   `json:"image"`
+	Name          string   `json:"name"`
+	Members       []string `json:"members"`
+	CreationDate  int      `json:"creationDate"`
+	FirstAlbum    string   `json:"firstAlbum"`
+	LocationsURL  string   `json:"locations"`
+	LocationsData []string `json:"-"`
+	ConcertDates  string   `json:"concertDates"`
+	Relations     string   `json:"relations"`
+	Musique       string   `json:"musique"`
 }
 
 // Locations returns the locations data for the template
@@ -125,9 +124,14 @@ func NewServer(addr string) *Server {
 }
 
 func (s *Server) Start() error {
-	log.Printf("Server started on http://localhost%s", s.srv.Addr)
-	return s.srv.ListenAndServe()
+	log.Printf("Starting HTTP server on %s", s.srv.Addr)
+	err := s.srv.ListenAndServe()
+	if err != nil {
+		log.Printf("Server failed: %v", err)
+	}
+	return err
 }
+
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
@@ -174,7 +178,7 @@ func loadLocationsData() (map[int][]string, error) {
 		} `json:"index"`
 	}
 
-	data, err := os.ReadFile(filepath.Join(".", "api", "locations.json"))
+	data, err := os.ReadFile(filepath.Join(".", "api", "location.json"))
 	if err != nil {
 		return nil, err
 	}

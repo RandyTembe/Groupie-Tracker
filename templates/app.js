@@ -1,3 +1,4 @@
+
 // Configuration
 const GENRE_MAP = {
     'Queen': 'Rock', 'SOJA': 'Reggae', 'Pink Floyd': 'Rock', 'Scorpions': 'Metal',
