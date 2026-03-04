@@ -1,3 +1,1 @@
 .env.example
-DATABASE_URL=postgres://user:password@host:port/dbname
-PORT=3000

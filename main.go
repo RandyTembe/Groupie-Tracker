@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"os"
-
+	"github.com/joho/godotenv"
 	"github.com/RandyTembe/Groupie-Tracker/server"
 )
 
