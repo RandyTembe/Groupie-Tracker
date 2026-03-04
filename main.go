@@ -8,6 +8,10 @@ import (
 )
 
 func main() {
+	godotenv.Load()   
+    InitDatabase()     
+	
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "3000" 
@@ -20,5 +24,8 @@ func main() {
 	if err := s.Start(); err != nil {
 		log.Fatalf("Server error: %v", err)
 	}
+	http.HandleFunc("/favorites", favoritesPage)
+    http.HandleFunc("/favorites/add", addFavorite)
+    http.HandleFunc("/favorites/remove", removeFavorite)
 }
 
