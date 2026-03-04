@@ -10,10 +10,10 @@ import (
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3000" // fallback local
+		port = "3000" 
 	}
 
-	addr := "0.0.0.0:" + port // <-- important
+	addr := "0.0.0.0:" + port 
 	log.Println("Starting server on", addr)
 
 	s := server.NewServer(addr)
@@ -21,3 +21,4 @@ func main() {
 		log.Fatalf("Server error: %v", err)
 	}
 }
+
